@@ -36,7 +36,7 @@ jobs:
       run: pytest
 
     - name: Install python-graphblas
-      if: ${{ !contains(matrix.python-version, 'pypy') }}  # no wheels for pypy
+      if: ${{ !contains(matrix.python-version, 'pypy') && matrix.python-version != '3.7' }}  # no wheels for pypy and old python
       run: |
         pip install suitesparse-graphblas==7.4.4.1a1
         pip install python-graphblas
