@@ -1,0 +1,67 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: Tests on ${{ matrix.os }} - ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.7', '3.11', 'pypy-3.9']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install base dependencies
+      run: pip install pytest
+
+    - name: Test minimums
+      run: pytest tests/test_basic.py tests/test_list_like.py
+
+    - name: Install test dependencies
+      if: ${{ !contains(matrix.python-version, 'pypy') }}  # no scipy wheels for pypy
+      run: pip install pytest pytest-subtests html5lib scipy
+
+    - name: Python only scipy
+      if: ${{ !contains(matrix.python-version, 'pypy') }}  # no scipy wheels for pypy
+      run: pytest
+
+    - name: Install python-graphblas
+      if: ${{ !contains(matrix.python-version, 'pypy') }}  # no wheels for pypy
+      run: |
+        pip install suitesparse-graphblas==7.4.4.1a1
+        pip install python-graphblas
+
+    - name: Python Test without Jupyter
+      if: ${{ !contains(matrix.python-version, 'pypy') }}  # no scipy wheels for pypy
+      run: pytest
+
+    - name: Install Jupyter
+      if: ${{ !contains(matrix.python-version, 'pypy') }}  # no scipy wheels for pypy
+      run: pip install jupyter
+
+    - name: Python Test with Jupyter
+      if: ${{ !contains(matrix.python-version, 'pypy') }}  # no scipy wheels for pypy
+      run: pytest
+
+    - name: Python Test with Coverage
+      if: ${{ contains(matrix.os, 'ubuntu') && !contains(matrix.python-version, 'pypy') }}
+      run: |
+        pip install pytest-cov
+        pytest --cov=matrepr --cov-report term --cov-report=xml
+
+    - name: Upload Coverage to Codecov
+      if: ${{ contains(matrix.os, 'ubuntu') && !contains(matrix.python-version, 'pypy') }}
+      uses: codecov/codecov-action@v3
+      with:
+        gcov: true
+        gcov_include: matrepr/*

@@ -1,0 +1,29 @@
+[project]
+name = "matrepr"
+version = "0.4.2"
+description="Sparse matrix HTML and LaTeX rendering with Jupyter integration."
+readme = "README.md"
+authors = [
+    { name = "Adam Lugowski"},
+]
+dependencies = [
+]
+requires-python = ">=3.7"
+
+classifiers = [
+#    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Scientific/Engineering",
+]
+
+[project.urls]
+homepage = "https://github.com/alugowski/matrepr"
+repository = "https://github.com/alugowski/matrepr"
+
+[project.optional-dependencies]
+test = ["pytest", "scipy", "matplotlib", "html5lib"]
