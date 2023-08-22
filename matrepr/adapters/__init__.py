@@ -93,11 +93,17 @@ class Truncated2DMatrix(MatrixAdapterRow):
 
         if self.display_shape[0] < self.orig_shape[0]:
             # need to truncate rows
-            self.dot_row = max(0, self.display_shape[0] - 1 - num_after_dots)
+            if 0 < num_after_dots < 1:
+                self.dot_row = int(self.display_shape[0] * num_after_dots)
+            else:
+                self.dot_row = max(0, self.display_shape[0] - 1 - int(num_after_dots))
 
         if self.display_shape[1] < self.orig_shape[1]:
             # need to truncate columns
-            self.dot_col = max(0, self.display_shape[1] - 1 - num_after_dots)
+            if 0 < num_after_dots < 1:
+                self.dot_col = int(self.display_shape[1] * num_after_dots)
+            else:
+                self.dot_col = max(0, self.display_shape[1] - 1 - int(num_after_dots))
 
     def describe(self) -> str:
         return self.description
@@ -198,7 +204,7 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
         raise ValueError("Only 1 or 2 dimensional matrices supported at this time.")
 
     if isinstance(mat, MatrixAdapterCoo):
-        if max_rows == nrows and max_cols == ncols:
+        if max_rows >= nrows and max_cols >= ncols:
             num_after_dots = 0
 
         import time
@@ -226,10 +232,12 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
                 trunc.set(row, col, val)
 
             # fetch the other three quadrants
+            dot_row = trunc.dot_row if trunc.dot_row else 0
+            dot_col = trunc.dot_col if trunc.dot_col else 0
             for row_range, col_range in [
-                ((0, max_rows), (ncols - num_after_dots, ncols)),  # top-right
-                ((nrows - num_after_dots, nrows), (0, max_cols)),  # bottom-right
-                ((nrows - num_after_dots, nrows), (ncols - num_after_dots, ncols)),  # bottom-right
+                ((0, dot_row), (dot_col + 1, ncols)),  # top-right
+                ((dot_row + 1, nrows), (0, dot_col)),  # bottom-right
+                ((dot_row + 1, nrows), (dot_col + 1, ncols)),  # bottom-right
             ]:
                 for row, col, val in mat.get_coo(row_range=row_range, col_range=col_range):
                     trunc.set(row, col, val)

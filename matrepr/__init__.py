@@ -19,7 +19,7 @@ class MatReprParams:
     max_cols: int = 15
     """Maximum number of columns in HTML and Latex output."""
 
-    num_after_dots: int = 2
+    num_after_dots: Union[int, float] = 0.5
     """
     If a matrix has more rows or columns than allowed then an ellipsis (three dots) is emitted to cover the excess.
     This parameter controls how many rows/columns are drawn at the end of the matrix.
@@ -27,7 +27,7 @@ class MatReprParams:
     For example, a value of 1 means the final row and final column are emitted in addition to the top-left corner.
     A value of 2 means the final two rows and columns are emitted, with a correspondingly smaller top-left corner.
     
-    Note: ignored for matrix formats without fast row/column indexing, such as COO.
+    Note: May be ignored for very large matrices without fast row/column indexing.
     """
 
     cell_align: str = "center"
