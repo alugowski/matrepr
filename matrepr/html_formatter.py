@@ -33,6 +33,7 @@ class HTMLTableFormatter(BaseFormatter):
         self.indent_width = 4
         self.left_td_class = None
         self.right_td_class = None
+        self.thead_class = None
         self.center_header = False
 
     # noinspection PyMethodMayBeStatic
@@ -68,7 +69,8 @@ class HTMLTableFormatter(BaseFormatter):
 
         # Header
         if self.indices:
-            self.write("<thead>", indent=body_indent)
+            thead_class = f' class="{self.thead_class}"' if self.thead_class else ""
+            self.write(f'<thead{thead_class}>', indent=body_indent)
             self.write("<tr>", indent=body_indent)
             self.write(f"<th></th>", indent=cell_indent)
             for col_label in mat.get_col_labels():
@@ -125,6 +127,7 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
         index_attributes = {"font-size": "smaller", "vertical-align": "middle"}
         self.write("<style scoped>")
         for tags, attributes in [
+            ("thead.head_no_border", {"border": "0px"}),
             ("tbody tr th", {**index_attributes, "text-align": "right"}),  # row indices
             ("thead tr th", {**index_attributes, "text-align": "center"}),  # column indices
             ("tbody tr td", {"vertical-align": "middle", "text-align": self.cell_align}),
@@ -143,6 +146,7 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
         self._write_style()
         self.left_td_class = "left_cell"
         self.right_td_class = "right_cell"
+        self.thead_class = "head_no_border"
         self.center_header = True
         super().format(mat)
         self.write("</div>")
