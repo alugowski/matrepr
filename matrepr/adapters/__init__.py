@@ -127,11 +127,8 @@ class Truncated2DMatrix(MatrixAdapterRow):
             # noinspection PyTypeChecker
             return list(range(pre_dot_end)) + [None] + list(range(post_dot_start, self.orig_shape[1]))
 
-    def get_row(self, row_idx: int, col_range: Tuple[int, int] = None):
-        if col_range is None:
-            return self.elements[row_idx]
-        else:
-            return self.elements[row_idx][col_range[0]:col_range[1]]
+    def get_row(self, row_idx: int, col_range: Tuple[int, int]):
+        return self.elements[row_idx][col_range[0]:col_range[1]]
 
     def set(self, row_idx: int, col_idx: int, value: Any):
         row_idx = int(row_idx)
@@ -284,4 +281,3 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
         return trunc
 
     raise NotImplementedError
-
