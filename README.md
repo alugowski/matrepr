@@ -1,5 +1,5 @@
 [![tests](https://github.com/alugowski/matrepr/actions/workflows/tests.yml/badge.svg)](https://github.com/alugowski/matrepr/actions/workflows/tests.yml)
-[![codecov](https://codecov.io/gh/alugowski/matrepr/graph/badge.svg?token=m2xJcl5iAQ)](https://codecov.io/gh/alugowski/matrepr)
+[![codecov](https://codecov.io/gh/alugowski/matrepr/graph/badge.svg?token=e9QEAd57gz)](https://codecov.io/gh/alugowski/matrepr)
 [![PyPI version](https://badge.fury.io/py/matrepr.svg)](https://pypi.org/project/matrepr/)
 
 # MatRepr
