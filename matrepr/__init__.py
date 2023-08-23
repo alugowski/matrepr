@@ -99,7 +99,7 @@ class MatReprParams:
             ret.float_formatter = lambda f: format(f, fmt_str)
 
         # validate
-        self._assert_one_of("cell_align", ['center', 'left', 'right'])
+        ret._assert_one_of("cell_align", ['center', 'left', 'right'])
 
         # Apply some default rules
         if ret.title_latex is None:
