@@ -1,6 +1,5 @@
 from typing import Any, Iterable, Tuple
 
-import numpy as np
 import graphblas as gb
 
 from . import describe, MatrixAdapterCoo, MatrixAdapterRow

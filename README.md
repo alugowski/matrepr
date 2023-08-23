@@ -97,4 +97,4 @@ Each package that MatRepr supports implements two classes:
 
 See [matrepr/adapters](matrepr/adapters) for details.
 
-You may use `matspy.register` to register a Driver for your own matrix class.
+You may use `matspy.register_driver` to register a Driver for your own matrix class.
