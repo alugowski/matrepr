@@ -4,7 +4,7 @@
 
 import re
 
-from .adapters import MatrixAdapter, MatrixAdapterRow, Truncated2DMatrix, to_trunc
+from .adapters import MatrixAdapter, MatrixAdapterRow, Truncated2DMatrix, to_trunc, DupeList
 from .base_formatter import BaseFormatter, unicode_dots
 
 
@@ -27,9 +27,10 @@ def tex_escape(text):
         '}': r'\}',
         '~': r'\textasciitilde{}',
         '^': r'\^{}',
-        '\\': r'\textbackslash{}',
-        '<': r'\textless{}',
-        '>': r'\textgreater{}',
+        # '\\': r'\textbackslash{}',
+        '\\': r'\\',
+        # '<': r'\textless{}',
+        # '>': r'\textgreater{}',
         " '": r' `',
     }
     regex = re.compile('|'.join(re.escape(str(key)) for key in sorted(conv.keys(), key=lambda item: - len(item))))
@@ -49,13 +50,14 @@ unicode_to_latex = {
 
 class LatexFormatter(BaseFormatter):
     def __init__(self, max_rows, max_cols, num_after_dots, title_latex, latex_matrix_env,
-                 float_formatter_latex=None, **_):
+                 float_formatter_latex=None, latex_dupe_matrix_env="Bmatrix", **_):
         super().__init__()
         self.max_rows = max_rows
         self.max_cols = max_cols
         self.num_after_dots = num_after_dots
         self.title = title_latex
         self.latex_matrix_env = latex_matrix_env
+        self.dupe_env = latex_dupe_matrix_env
         self.float_formatter = float_formatter_latex
         if not self.float_formatter:
             self.float_formatter = lambda f: python_scientific_to_latex_times10(format(f))
@@ -65,13 +67,44 @@ class LatexFormatter(BaseFormatter):
         if obj is None:
             return ""
 
-        if isinstance(obj, float):
+        if isinstance(obj, (int, float)):
             return self.float_formatter(obj)
 
-        if obj in unicode_to_latex:
-            return unicode_to_latex[obj]
+        if isinstance(obj, complex):
+            r = obj.real
+            c = obj.imag
+            sign = "-" if c < 0 else "+"
+            return f"{self.pprint(r)}{sign}{self.pprint(c)}i"
 
-        return tex_escape(str(obj))
+        dupe_list_env = self.dupe_env
+        if isinstance(obj, str):
+            if obj in unicode_to_latex:
+                return unicode_to_latex[obj]
+            elif "\n" in obj:
+                obj = DupeList(obj.split("\n"))
+                dupe_list_env = "matrix"
+            else:
+                return "\\textrm{" + tex_escape(obj) + "}"
+
+        if isinstance(obj, DupeList):
+            fmt = LatexFormatter(max_rows=len(obj), max_cols=1, num_after_dots=0, title_latex=None,
+                                 latex_matrix_env=dupe_list_env, latex_dupe_matrix_env=self.dupe_env,
+                                 float_formatter_latex=self.float_formatter)
+            from .adapters.list_like import ListAdapter
+            return str(fmt.format(ListAdapter(obj)))
+
+        from . import _get_adapter
+        adapter = _get_adapter(obj, unsupported_raise=False)
+        if adapter:
+            fmt = LatexFormatter(max_rows=max(self.max_rows / 2, 2),
+                                 max_cols=max(self.max_cols / 2, 2),
+                                 num_after_dots=0, title_latex=None,
+                                 latex_matrix_env=self.latex_matrix_env,
+                                 latex_dupe_matrix_env=self.dupe_env,
+                                 float_formatter_latex=self.float_formatter)
+            return str(fmt.format(adapter))
+
+        return "\\textrm{" + tex_escape(str(obj)) + "}"
 
     def _write_matrix(self, mat: MatrixAdapterRow, indent: int = 0):
         if isinstance(mat, Truncated2DMatrix):
@@ -87,7 +120,7 @@ class LatexFormatter(BaseFormatter):
             row_contents = []
 
             col_range = (0, ncols)
-            for col_idx, cell in enumerate(mat.get_row(row_idx, col_range=col_range)):
+            for col_idx, cell in enumerate(mat.get_dense_row(row_idx, col_range=col_range)):
                 if cell is not None:
                     row_contents.append(self.pprint(cell))
 

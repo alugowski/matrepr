@@ -38,6 +38,20 @@ class ToLatexTests(unittest.TestCase):
                 res = to_latex(mat, **to_latex_args)
                 self.validate_latex(res)
 
+    def test_dupes(self):
+        row = [0, 0, 0]
+        col = [0, 0, 0]
+        val = [101, 202, 303]
+        mat = scipy.sparse.coo_matrix((val, (row, col)), shape=(5, 5))
+
+        res = to_latex(mat, notebook=False, max_rows=6, max_cols=6)
+
+        count = 0
+        for value in val:
+            if str(value) in res:
+                count += 1
+        self.assertEqual(len(val), count)
+
     def test_title(self):
         mat = generate_fixed_value(4, 4)
         off = to_latex(mat, title=False)

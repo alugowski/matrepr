@@ -37,13 +37,18 @@ To one of these:
 
 
 ## Quick Start
+
+```shell
+pip install matrepr
+```
+
 ```python
 from matrepr import mdisplay
 ```
 
-* `to_html(A)`: Format `A` as an HTML table. Returns string.
-* `to_latex(A)`: Format `A` as a LaTeX matrix. Returns string.
 * `mdisplay(A)`: Displays the output of `to_html` or `to_latex` in Jupyter.
+* `to_html(A)`: Format `A` as an HTML table. Returns a string.
+* `to_latex(A)`: Format `A` as a LaTeX matrix. Returns a string.
 
 ## Jupyter Integration
 
@@ -82,6 +87,17 @@ matrepr.params.title = False
 matrepr.params.indices = False
 matrepr.params.num_after_dots = 0
 ```
+
+## Edge Cases
+
+MatRepr gracefully handles:
+ * multiple elements with the same coordinates (i.e. duplicates)
+ * nested matrices
+ * complex values
+ * string values (including multiline)
+ * LaTeX scientific notation as $`\times 10^{power}`$
+
+See [demo-edgecases notebook](doc/demo-edgecases.ipynb) for more.
 
 ## How does it work?
 

@@ -45,6 +45,9 @@ class MatReprParams:
     latex_matrix_env: str = "bmatrix"
     """Latex environment to use for matrices. For Jupyter this should be one supported by MathJax."""
 
+    latex_dupe_matrix_env: str = "Bmatrix"
+    """Latex environment to use when a cell has multiple elements."""
+
     precision: int = 4
     """
     Floating-point precision. May be overriden by setting `float_formatter`.
@@ -144,23 +147,19 @@ def _register_bundled():
 _register_bundled()
 
 
-def _get_driver(mat):
-    if isinstance(mat, list):
-        type_str = "builtins.list"
-    elif isinstance(mat, tuple):
-        type_str = "builtins.tuple"
-    else:
-        type_str = ".".join((mat.__module__, mat.__class__.__name__))
+def _get_driver(mat, unsupported_raise=True):
+    type_str = ".".join((type(mat).__module__, type(mat).__name__))
     driver = _driver_map.get(type_str, None)
-    if not driver:
-        print("Supported types: \n" + "\n".join(sorted(list(_driver_map.keys()))))
+    if not driver and unsupported_raise:
+        # print("Supported types: \n" + "\n".join(sorted(list(_driver_map.keys()))))
         raise AttributeError("Unsupported type: " + type_str)
     return driver
 
 
-def _get_adapter(mat) -> MatrixAdapter:
-    adapter = _get_driver(mat).adapt(mat)
-    if not adapter:
+def _get_adapter(mat, unsupported_raise=True) -> MatrixAdapter:
+    driver = _get_driver(mat, unsupported_raise=unsupported_raise)
+    adapter = driver.adapt(mat) if driver else None
+    if not adapter and unsupported_raise:
         raise AttributeError("Unsupported matrix")
 
     return adapter

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from abc import ABC, abstractmethod
-from typing import Any, Iterable, Optional, Tuple
+from typing import Any, List, Iterable, Optional, Tuple
 
 
 def describe(shape: tuple = None, nnz: int = None, nz_type=None, notes: str = None) -> str:
@@ -29,6 +29,16 @@ def describe(shape: tuple = None, nnz: int = None, nz_type=None, notes: str = No
     return ", ".join(parts)
 
 
+class DupeList(list):
+    """
+    A list but a different type to distinguish between a list in the original data
+    and a list created to handle duplicate entries.
+    """
+
+    def __init__(self, iterable):
+        super().__init__(iterable)
+
+
 class MatrixAdapter(ABC):
     @abstractmethod
     def describe(self) -> str:
@@ -47,13 +57,24 @@ class MatrixAdapter(ABC):
 
 class MatrixAdapterRow(MatrixAdapter):
     @abstractmethod
-    def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Any]:
+    def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
         pass
+
+    def get_dense_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Any]:
+        ret: List[Any] = [None] * self.get_shape()[1]
+        for idx, value in self.get_row(row_idx, col_range):
+            if ret[idx] is None:
+                ret[idx] = value
+            elif isinstance(ret[idx], DupeList):
+                ret[idx].append(value)
+            else:
+                ret[idx] = DupeList([ret[idx], value])
+        return ret
 
 
 class MatrixAdapterCol(MatrixAdapter):
     @abstractmethod
-    def get_col(self, col_idx: int, row_range: Tuple[int, int]) -> Iterable[Any]:
+    def get_col(self, col_idx: int, row_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
         pass
 
 
@@ -85,7 +106,7 @@ class Truncated2DMatrix(MatrixAdapterRow):
         self.orig_shape = orig_shape
         self.display_shape = (min(orig_shape[0], display_shape[0]), min(orig_shape[1], display_shape[1]))
         self.nrows, self.ncols = self.display_shape
-        self.elements = [[None] * self.ncols for _ in range(self.nrows)]
+        self.elements: List[Any] = [[None] * self.ncols for _ in range(self.nrows)]
         self.description = description
 
         self.dot_col = None
@@ -127,7 +148,10 @@ class Truncated2DMatrix(MatrixAdapterRow):
             # noinspection PyTypeChecker
             return list(range(pre_dot_end)) + [None] + list(range(post_dot_start, self.orig_shape[1]))
 
-    def get_row(self, row_idx: int, col_range: Tuple[int, int]):
+    def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
+        return enumerate(self.get_dense_row(row_idx, col_range), start=col_range[0])
+
+    def get_dense_row(self, row_idx: int, col_range: Tuple[int, int]):
         return self.elements[row_idx][col_range[0]:col_range[1]]
 
     def set(self, row_idx: int, col_idx: int, value: Any):
@@ -148,7 +172,12 @@ class Truncated2DMatrix(MatrixAdapterRow):
                 # within the dots
                 return
 
-        self.elements[row_idx][col_idx] = value
+        if self.elements[row_idx][col_idx] is None:
+            self.elements[row_idx][col_idx] = value
+        elif isinstance(self.elements[row_idx][col_idx], DupeList):
+            self.elements[row_idx][col_idx].append(value)
+        else:
+            self.elements[row_idx][col_idx] = DupeList([self.elements[row_idx][col_idx], value])
 
     def apply_dots(self, dots):
         if self.dot_row is not None:
@@ -255,8 +284,7 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
                 continue
 
             for col_range in [(0, pre_dot_end), (post_dot_start, ncols)]:
-                values = mat.get_row(row_idx, col_range=col_range)
-                for col_idx, value in enumerate(values, start=col_range[0]):
+                for col_idx, value in mat.get_row(row_idx, col_range=col_range):
                     trunc.set(row_idx, col_idx, value)
         return trunc
 
@@ -275,8 +303,7 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
                 continue
 
             for row_range in [(0, pre_dot_end), (post_dot_start, nrows)]:
-                values = mat.get_col(col_idx, row_range=row_range)
-                for row_idx, value in enumerate(values, start=row_range[0]):
+                for row_idx, value in mat.get_col(col_idx, row_range=row_range):
                     trunc.set(row_idx, col_idx, value)
         return trunc
 
