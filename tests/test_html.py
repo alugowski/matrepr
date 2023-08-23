@@ -75,6 +75,20 @@ class ToHTMLTests(unittest.TestCase):
                         count += 1
                 self.assertEqual(expected_count, count)
 
+    def test_dupes(self):
+        row = [0, 0, 0]
+        col = [0, 0, 0]
+        val = [101, 202, 303]
+        mat = scipy.sparse.coo_matrix((val, (row, col)), shape=(5, 5))
+
+        res = to_html(mat, notebook=False, max_rows=6, max_cols=6)
+
+        count = 0
+        for value in val:
+            if str(value) in res:
+                count += 1
+        self.assertEqual(len(val), count)
+
     def test_precision(self):
         f = 0.123456789
         mat = scipy.sparse.coo_matrix(([f], ([0], [0])), shape=(1, 1))

@@ -58,8 +58,5 @@ class GraphBLASVectorAdapter(GraphBLASAdapter, MatrixAdapterRow):
         assert row_idx == 0
 
         idx, vals = self.mat[slice(*col_range)].to_coo()
-
-        ret = [None] * (col_range[1] - col_range[0])
-        for i, v in zip(idx, vals):
-            ret[i] = v
-        return ret
+        idx += col_range[0]
+        return zip(idx, vals)

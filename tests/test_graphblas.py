@@ -62,7 +62,6 @@ class GraphBLASMatrixTests(unittest.TestCase):
             for value in mat.data:
                 if f"<td>{value}</td>" in res:
                     count += 1
-            print(res)
             self.assertEqual(expected_count, count)
 
 
@@ -91,6 +90,13 @@ class GraphBLASVectorTests(unittest.TestCase):
         vec = gb.Vector.from_coo([0, 1, 2, 3, 4], values, size=10)
         res = to_html(vec, notebook=False, max_rows=20, max_cols=20, title=True, indices=True)
         for value in values:
+            self.assertIn(f"<td>{value}</td>", res)
+
+    def test_truncate(self):
+        values = [1000, 1001, 1002, 1003, 1004]
+        vec = gb.Vector.from_coo([0, 1, 2, 3, 4], values, size=5)
+        res = to_html(vec, notebook=False, max_rows=3, max_cols=3, num_after_dots=1, title=True, indices=True)
+        for value in [1000, 1004]:
             self.assertIn(f"<td>{value}</td>", res)
 
 
