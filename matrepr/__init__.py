@@ -27,7 +27,9 @@ class MatReprParams:
     For example, a value of 1 means the final row and final column are emitted in addition to the top-left corner.
     A value of 2 means the final two rows and columns are emitted, with a correspondingly smaller top-left corner.
     
-    Note: May be ignored for very large matrices without fast row/column indexing.
+    A fractional value between 0 and 1 means a fraction of `max_rows` and `max_cols`.
+    
+    Note: May be set to 0 for very large matrices without fast row/column indexing.
     """
 
     cell_align: str = "center"
@@ -50,27 +52,30 @@ class MatReprParams:
 
     precision: int = 4
     """
-    Floating-point precision. May be overriden by setting `float_formatter`.
+    Floating-point precision. May be overriden by `float_formatter`.
     """
 
     float_formatter: Callable[[float], str] = None
     """
     A callable for converting floating point numbers to string.
-    For convenience may also be a format string `fmt_str` and this will be done for you:
-    `float_formatter = lambda f: format(f, fmt_str)`
     
-    If None then formats using `precision`.
+    For convenience may also be a format string.
+    
+    If None then `precision` is used.
     """
 
     float_formatter_latex: Callable[[float], str] = None
     """
     Overwrites `float_formatter` for LaTeX output. If None then uses `float_formatter` but converts scientific
-    notation from `1e22` to `1 \\times 10^{22}`.
+    notation: :raw:`1e22` becomes :raw:`1 \\times 10^{22}`
     """
 
     def set_precision(self, precision, g=True):
         """
         Precision to use for floating-point to string conversion.
+
+        :param precision: floating-point precision
+        :param g: Whether to use :code:`g` or :code:`f` formatting.
         """
         fmt_str = f".{precision}{'g' if g else ''}"
         self.float_formatter = lambda f: format(f, fmt_str)
@@ -115,6 +120,9 @@ class MatReprParams:
 
 
 params = MatReprParams()
+"""
+Changeable default parameters that apply unless overridden in a method call.
+"""
 _drivers: List[Type[Driver]] = []
 _driver_map: Dict[str, Type[Driver]] = {}
 _driver_registration_notify: List[Callable[[Type[Driver]], None]] = []
@@ -166,6 +174,15 @@ def _get_adapter(mat, unsupported_raise=True) -> MatrixAdapter:
 
 
 def to_html(mat, notebook=False, **kwargs) -> str:
+    """
+    Render a matrix to HTML.
+
+    :param mat: A supported matrix.
+    :param notebook: If true then adds extra styling appropriate for display in a Jupyter notebook.
+    :param kwargs: Any argument in :class:`MatReprParams`.
+    :rtype: str
+    :return: A string containing an HTML representation of `mat`.
+    """
     options = params.get(**kwargs)
     adapter = _get_adapter(mat)
 
@@ -178,6 +195,14 @@ def to_html(mat, notebook=False, **kwargs) -> str:
 
 
 def to_latex(mat, **kwargs):
+    """
+    Render a matrix to LaTeX.
+
+    :param mat: A supported matrix.
+    :param kwargs: Any argument in :class:`MatReprParams`.
+    :rtype: str
+    :return: A string containing a LaTeX representation of `mat`.
+    """
     options = params.get(**kwargs)
     adapter = _get_adapter(mat)
 
@@ -187,6 +212,13 @@ def to_latex(mat, **kwargs):
 
 
 def mdisplay(mat, method="html", **kwargs):
+    """
+    Display a matrix in Jupyter.
+
+    :param mat: A supported matrix.
+    :param method: Style to use. One of :code:`"html"`, :code:`"latex"`.
+    :param kwargs: Any argument in :class:`MatReprParams`.
+    """
     from IPython.display import display, HTML, Latex
 
     if method == "html":
