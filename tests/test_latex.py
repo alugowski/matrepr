@@ -73,7 +73,7 @@ class ToLatexTests(unittest.TestCase):
         self.assertIn("0.1235", res)
 
         # explicit format string
-        res = to_latex(mat, float_formatter=".2g")
+        res = to_latex(mat, floatfmt=".2g")
         self.assertIn("0.12", res)
 
         # explicit precision number

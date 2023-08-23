@@ -98,7 +98,7 @@ class ToHTMLTests(unittest.TestCase):
         self.assertIn("<td>0.1235</td>", res)
 
         # explicit format string
-        res = to_html(mat, float_formatter=".2g")
+        res = to_html(mat, floatfmt=".2g")
         self.assertIn("<td>0.12</td>", res)
 
         # explicit precision number
