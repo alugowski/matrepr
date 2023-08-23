@@ -52,21 +52,21 @@ class MatReprParams:
 
     precision: int = 4
     """
-    Floating-point precision. May be overriden by `float_formatter`.
+    Floating-point precision. May be overriden by `floatfmt`.
     """
 
-    float_formatter: Callable[[float], str] = None
+    floatfmt: Union[str, Callable[[float], str]] = None
     """
-    A callable for converting floating point numbers to string.
-    
-    For convenience may also be a format string.
+    A format string to format numbers as string, usable by :code:`format()`.
+
+    May also be a `Callable` that converts numbers to strings.
     
     If None then `precision` is used.
     """
 
-    float_formatter_latex: Callable[[float], str] = None
+    floatfmt_latex: Callable[[float], str] = None
     """
-    Overwrites `float_formatter` for LaTeX output. If None then uses `float_formatter` but converts scientific
+    Overwrites `floatfmt` for LaTeX output. If None then uses `floatfmt` but converts scientific
     notation: :raw:`1e22` becomes :raw:`1 \\times 10^{22}`
     """
 
@@ -78,7 +78,7 @@ class MatReprParams:
         :param g: Whether to use :code:`g` or :code:`f` formatting.
         """
         fmt_str = f".{precision}{'g' if g else ''}"
-        self.float_formatter = lambda f: format(f, fmt_str)
+        self.floatfmt = lambda f: format(f, fmt_str)
 
     def _assert_one_of(self, var, choices):
         if getattr(self, var) not in choices:
@@ -97,11 +97,11 @@ class MatReprParams:
                 setattr(ret, key, value)
 
         # Handy type conversions
-        if ret.float_formatter is None:
+        if ret.floatfmt is None:
             ret.set_precision(ret.precision)
-        elif isinstance(ret.float_formatter, str):
-            fmt_str = ret.float_formatter
-            ret.float_formatter = lambda f: format(f, fmt_str)
+        elif isinstance(ret.floatfmt, str):
+            fmt_str = ret.floatfmt
+            ret.floatfmt = lambda f: format(f, fmt_str)
 
         # validate
         ret._assert_one_of("cell_align", ['center', 'left', 'right'])
@@ -110,8 +110,8 @@ class MatReprParams:
         if ret.title_latex is None:
             ret.title_latex = ret.title
 
-        if ret.float_formatter_latex is None:
-            ret.float_formatter_latex = lambda f: python_scientific_to_latex_times10(ret.float_formatter(f))
+        if ret.floatfmt_latex is None:
+            ret.floatfmt_latex = lambda f: python_scientific_to_latex_times10(ret.floatfmt(f))
 
         return ret
 

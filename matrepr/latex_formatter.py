@@ -50,7 +50,7 @@ unicode_to_latex = {
 
 class LatexFormatter(BaseFormatter):
     def __init__(self, max_rows, max_cols, num_after_dots, title_latex, latex_matrix_env,
-                 float_formatter_latex=None, latex_dupe_matrix_env="Bmatrix", **_):
+                 floatfmt_latex=None, latex_dupe_matrix_env="Bmatrix", **_):
         super().__init__()
         self.max_rows = max_rows
         self.max_cols = max_cols
@@ -58,9 +58,9 @@ class LatexFormatter(BaseFormatter):
         self.title = title_latex
         self.latex_matrix_env = latex_matrix_env
         self.dupe_env = latex_dupe_matrix_env
-        self.float_formatter = float_formatter_latex
-        if not self.float_formatter:
-            self.float_formatter = lambda f: python_scientific_to_latex_times10(format(f))
+        self.floatfmt = floatfmt_latex
+        if not self.floatfmt:
+            self.floatfmt = lambda f: python_scientific_to_latex_times10(format(f))
         self.indent_width = 4
 
     def pprint(self, obj):
@@ -68,7 +68,7 @@ class LatexFormatter(BaseFormatter):
             return ""
 
         if isinstance(obj, (int, float)):
-            return self.float_formatter(obj)
+            return self.floatfmt(obj)
 
         if isinstance(obj, complex):
             r = obj.real
@@ -89,7 +89,7 @@ class LatexFormatter(BaseFormatter):
         if isinstance(obj, DupeList):
             fmt = LatexFormatter(max_rows=len(obj), max_cols=1, num_after_dots=0, title_latex=None,
                                  latex_matrix_env=dupe_list_env, latex_dupe_matrix_env=self.dupe_env,
-                                 float_formatter_latex=self.float_formatter)
+                                 floatfmt_latex=self.floatfmt)
             from .adapters.list_like import ListAdapter
             return str(fmt.format(ListAdapter(obj)))
 
@@ -101,7 +101,7 @@ class LatexFormatter(BaseFormatter):
                                  num_after_dots=0, title_latex=None,
                                  latex_matrix_env=self.latex_matrix_env,
                                  latex_dupe_matrix_env=self.dupe_env,
-                                 float_formatter_latex=self.float_formatter)
+                                 floatfmt_latex=self.floatfmt)
             return str(fmt.format(adapter))
 
         return "\\textrm{" + tex_escape(str(obj)) + "}"
