@@ -42,11 +42,15 @@ class DupeList(list):
 class MatrixAdapter(ABC):
     @abstractmethod
     def describe(self) -> str:
-        pass
+        """
+        Return a human-readable description of the matrix, usable as a title.
+        """
 
     @abstractmethod
     def get_shape(self) -> tuple:
-        pass
+        """
+        Return the shape of the matrix.
+        """
 
     def get_row_labels(self) -> Iterable[Optional[Any]]:
         return range(self.get_shape()[0])
@@ -58,11 +62,25 @@ class MatrixAdapter(ABC):
 class MatrixAdapterRow(MatrixAdapter):
     @abstractmethod
     def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
-        pass
+        """
+        Extract a portion of single row from the matrix, as sparse tuples.
+
+        :param row_idx: index of row to fetch
+        :param col_range: half-open range of column indices to return
+        :return: an iterable of `(index, value)` tuples
+        """
 
     def get_dense_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Any]:
-        ret: List[Any] = [None] * self.get_shape()[1]
+        """
+        Extract a portion of single row from the matrix, as a dense array.
+
+        :param row_idx: index of row to fetch
+        :param col_range: half-open range of columns to return
+        :return: an iterable of length `col_range[1] - col_range[0]`
+        """
+        ret: List[Any] = [None] * (col_range[1] - col_range[0])
         for idx, value in self.get_row(row_idx, col_range):
+            idx = idx - col_range[0]
             if ret[idx] is None:
                 ret[idx] = value
             elif isinstance(ret[idx], DupeList):
@@ -75,28 +93,55 @@ class MatrixAdapterRow(MatrixAdapter):
 class MatrixAdapterCol(MatrixAdapter):
     @abstractmethod
     def get_col(self, col_idx: int, row_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
-        pass
+        """
+        Extract a portion of single column from the matrix, as sparse tuples.
+
+        :param col_idx: index of column to fetch
+        :param row_range: half-open range of rows to return
+        :return: an iterable of `(index, value)` tuples
+        """
 
 
 class MatrixAdapterCoo(MatrixAdapter):
     @abstractmethod
     def get_coo(self, row_range: Tuple[int, int], col_range: Tuple[int, int]) -> Iterable[Tuple[int, int, Any]]:
-        pass
+        """
+        Extract a portion of the matrix, as sparse tuples.
+
+        :param row_range: half-open range of rows to return
+        :param col_range: half-open range of columns to return
+        :return: an iterable of `(row_index, column_index, value)` tuples
+        """
 
 
 class Driver(ABC):
     @staticmethod
     @abstractmethod
     def get_supported_types() -> Iterable[Tuple[str, str, bool]]:
-        pass
+        """
+        Declares the types that this :class:`Driver` supports, and whether they should be registered with Jupyter.
+
+        Does not import the modules that it supports.
+
+        :rtype: (str, str, bool)
+        :returns: An iterable of `(module_name_as_str, class_name_as_str, should_register_with_Jupyter_bool)` tuples.
+        """
 
     @staticmethod
     @abstractmethod
     def adapt(mat: Any) -> Optional[MatrixAdapter]:
-        pass
+        """
+        Return a :class:`MatrixAdapter` for a supported matrix.
+        """
 
 
 class Truncated2DMatrix(MatrixAdapterRow):
+    """
+    An intermediary class used to present a dense view of an adapted matrix.
+
+    - Convert any adapter to a :class:`MatrixAdapterRow`.
+    - If a matrix is too large then supports showing just the corners with ellipses designating the truncated portions.
+    """
     def __init__(self, orig_shape: Tuple[int, int], display_shape: Tuple[int, int], num_after_dots=2,
                  description=None):
         if len(orig_shape) == 1:
@@ -206,13 +251,7 @@ class Truncated2DMatrix(MatrixAdapterRow):
 
 def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncated2DMatrix:
     """
-    Convert an adapted matrix to a Truncated2DMatrix.
-
-    :param mat:
-    :param max_rows:
-    :param max_cols:
-    :param num_after_dots:
-    :return:
+    Convert an adapted matrix to a :class:`Truncated2DMatrix`.
     """
     if isinstance(mat, Truncated2DMatrix):
         return mat
