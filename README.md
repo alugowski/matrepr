@@ -44,7 +44,7 @@ To one of these:
     └                                                           ┘
 ```
 
-`mprint(A)`. Use `to_str()` for the string.
+`mprint(A)`, `to_str()` for the string, or simply `A` if using monkey patching as below.
 
 ### HTML
 ![HTML](doc/images/html.png)
@@ -88,6 +88,36 @@ import matrepr.jupyter
 If you prefer LaTeX:
 ```python
 import matrepr.jupyter_latex
+```
+
+## Monkey Patching `__repr__`
+
+Unlike Jupyter, the Python REPL does not have a nice way to register a formatter.
+
+We can monkey patch a `__repl__` method into supported matrix classes for a similar effect.
+
+This is implemented in the [matrepr.patch](matrepr/patch) module. Simply import the patch you want:
+
+* `import matrepr.patch.scipy`
+* `import matrepr.patch.graphblas`
+
+Example:
+
+```
+>>> a = scipy.sparse.random(4, 4, density=0.5)
+>>> a
+<4x4 sparse matrix of type '<class 'numpy.float64'>'
+	with 8 stored elements in COOrdinate format>
+>>> import matrepr.patch.scipy
+>>> a
+4×4, 8 'float64' elements, coo
+        0        1        2        3
+    ┌                                   ┐
+  0 │ 0.4016                     0.4412 │
+  1 │ 0.309    0.8055                   │
+  2 │                   0.1982          │
+  3 │ 0.7438   0.6938            0.2215 │
+    └                                   ┘
 ```
 
 ## Arguments

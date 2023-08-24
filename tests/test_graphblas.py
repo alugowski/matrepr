@@ -100,5 +100,23 @@ class GraphBLASVectorTests(unittest.TestCase):
             self.assertIn(f"<td>{value}</td>", res)
 
 
+@unittest.skipIf(not have_gb, "python-graphblas not installed")
+class PatchGraphBLASTests(unittest.TestCase):
+    def test_patch_graphblas(self):
+        mat = gb.Matrix.from_coo([0, 1], [0, 1], [111, 222], nrows=5, ncols=5),
+        vec = gb.Vector.from_coo([0, 1], [111, 222], size=8)
+
+        # noinspection PyUnresolvedReferences
+        import matrepr.patch.graphblas
+
+        res = repr(mat)
+        self.assertIn("222", res)
+        self.assertIn("┌", res)  # a character used by MatRepr
+
+        res = repr(vec)
+        self.assertIn("222", res)
+        self.assertIn("┌", res)  # a character used by MatRepr
+
+
 if __name__ == '__main__':
     unittest.main()
