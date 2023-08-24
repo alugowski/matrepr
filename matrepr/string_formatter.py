@@ -92,20 +92,20 @@ def _to_tabulate_args(mat: Any, **kwargs) -> Tuple[Dict, Optional[TableFormat]]:
     options = params.get(**kwargs)
     adapter = _get_adapter(mat)
 
+    # collect the data
+    conv = ListConverter(**options.to_kwargs())
+    data, row_labels, col_labels = conv.to_lists_and_labels(adapter)
+
     # determine the table format
     if "tablefmt" in kwargs:
         matrix_format = kwargs["tablefmt"]
         patch_required = None
-    elif options.indices:
+    elif options.indices and row_labels:
         matrix_format = matrix_format_patched_indices
         patch_required = matrix_format_patched_indices
     else:
         matrix_format = matrix_table_format
         patch_required = None
-
-    # collect the data
-    conv = ListConverter(**options.to_kwargs())
-    data, row_labels, col_labels = conv.to_lists_and_labels(adapter)
 
     # collect floatfmt argument
     if "floatfmt" in kwargs and isinstance(kwargs["floatfmt"], str):
@@ -119,14 +119,14 @@ def _to_tabulate_args(mat: Any, **kwargs) -> Tuple[Dict, Optional[TableFormat]]:
     tab_args = {
         "tabular_data": data,
         "headers": _labels_to_str(col_labels) if options.indices else (),
-        "showindex": _labels_to_str(row_labels) if options.indices else False,
+        "showindex": _labels_to_str(row_labels) if options.indices and row_labels else False,
         "tablefmt": matrix_format,
         "floatfmt": floatfmt,
     }
 
     # colalign
     if "colalign" not in kwargs and options.indices:
-        tab_args["colalign"] = (["right"] if len(row_labels) > 0 else []) + ["center"] * len(col_labels)
+        tab_args["colalign"] = (["right"] if tab_args["showindex"] else []) + ["center"] * len(col_labels)
 
     # forward any remaining arguments
     for arg in ["intfmt", "numalign", "stralign", "missingval", "disable_numparse",

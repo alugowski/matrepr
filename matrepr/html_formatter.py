@@ -99,12 +99,16 @@ class HTMLTableFormatter(BaseFormatter):
         body_indent = indent + self.indent_width
         cell_indent = body_indent + self.indent_width
 
+        row_labels = mat.get_row_labels() if self.indices else None
+        row_labels = iter(row_labels) if row_labels else None
+
         # Header
         if self.indices:
             thead_class = f' class="{self.thead_class}"' if self.thead_class else ""
             self.write(f'<thead{thead_class}>', indent=body_indent)
             self.write("<tr>", indent=body_indent)
-            self.write(f"<th></th>", indent=cell_indent)
+            if row_labels:
+                self.write(f"<th></th>", indent=cell_indent)
             for col_label in mat.get_col_labels():
                 attr = ' style="text-align: center;"' if self.center_header else ""
                 self.write(f"<th{attr}>{self.pprint(col_label)}</th>", indent=cell_indent)
@@ -113,10 +117,9 @@ class HTMLTableFormatter(BaseFormatter):
 
         # values
         self.write("<tbody>", indent=body_indent)
-        row_labels = iter(mat.get_row_labels()) if self.indices else None
         for row_idx in range(nrows):
             self.write("<tr>", body_indent)
-            if self.indices:
+            if row_labels:
                 self.write(f"<th>{self.pprint(next(row_labels))}</th>", cell_indent)
 
             col_range = (0, ncols)

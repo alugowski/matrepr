@@ -144,6 +144,7 @@ class Truncated2DMatrix(MatrixAdapterRow):
     """
     def __init__(self, orig_shape: Tuple[int, int], display_shape: Tuple[int, int], num_after_dots=2,
                  description=None):
+        self.show_row_labels = len(orig_shape) != 1
         if len(orig_shape) == 1:
             orig_shape = (1, orig_shape[0])
         elif len(orig_shape) > 2:
@@ -178,6 +179,8 @@ class Truncated2DMatrix(MatrixAdapterRow):
         return self.display_shape
 
     def get_row_labels(self) -> Iterable[Optional[int]]:
+        if not self.show_row_labels:
+            return None #[None] * self.orig_shape[0]
         if self.dot_row is None:
             return list(range(self.orig_shape[0]))
         else:
@@ -317,7 +320,8 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
         pre_dot_end, post_dot_start = trunc.get_dot_indices_col()
 
         # fetch the pre-dot rows
-        for row_idx in trunc.get_row_labels():
+        rows_to_fetch = [0] if len(shape) == 1 else trunc.get_row_labels()
+        for row_idx in rows_to_fetch:
             if row_idx is None:
                 # dots
                 continue
