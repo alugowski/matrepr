@@ -4,7 +4,7 @@
 
 import dataclasses
 from dataclasses import dataclass, asdict
-from typing import Type, Callable, Dict, List, Union
+from typing import Any, Type, Callable, Dict, List, Union
 
 from .adapters import Driver, MatrixAdapter
 from .html_formatter import HTMLTableFormatter, NotebookHTMLFormatter
@@ -173,7 +173,7 @@ def _get_adapter(mat, unsupported_raise=True) -> MatrixAdapter:
     return adapter
 
 
-def to_html(mat, notebook=False, **kwargs) -> str:
+def to_html(mat: Any, notebook=False, **kwargs) -> str:
     """
     Render a matrix to HTML.
 
@@ -194,7 +194,7 @@ def to_html(mat, notebook=False, **kwargs) -> str:
     return str(formatter.format(adapter))
 
 
-def to_latex(mat, **kwargs):
+def to_latex(mat: Any, **kwargs):
     """
     Render a matrix to LaTeX.
 
@@ -211,20 +211,60 @@ def to_latex(mat, **kwargs):
     return str(formatter.format(adapter))
 
 
-def mdisplay(mat, method="html", **kwargs):
+def to_str(mat: Any, **kwargs) -> str:
+    """
+    Render a matrix to a string.
+
+    Internally uses `tabulate` and will pass through any arguments not explicitly set by this method.
+
+    :param mat: A supported matrix.
+    :param kwargs: Any argument in :class:`MatReprParams`.
+    :return: a string representation of `mat`.
+    """
+    options = params.get(**kwargs)
+
+    ret = []
+
+    if options.title:
+        if options.title is True:
+            adapter = _get_adapter(mat)
+            title = adapter.describe()
+        else:
+            title = options.title
+        ret.append(title)
+
+    from .string_formatter import to_tabulate
+    ret.append(to_tabulate(mat, **kwargs))
+
+    return "\n".join(ret)
+
+
+def mprint(mat: Any, **kwargs):
+    """
+    Prints the output of :func:`to_str`.
+
+    :param mat: A supported matrix.
+    :param kwargs: Any argument in :class:`MatReprParams`.
+    """
+    print(to_str(mat, **kwargs))
+
+
+def mdisplay(mat: Any, method="html", **kwargs):
     """
     Display a matrix in Jupyter.
 
     :param mat: A supported matrix.
-    :param method: Style to use. One of :code:`"html"`, :code:`"latex"`.
+    :param method: Style to use. One of :code:`"html"`, :code:`"latex"`, :code:`"str"`.
     :param kwargs: Any argument in :class:`MatReprParams`.
     """
-    from IPython.display import display, HTML, Latex
+    from IPython.display import display, HTML, Latex, display_pretty
 
     if method == "html":
         display(HTML(to_html(mat, notebook=True, **kwargs)))
     elif method == "latex":
         display(Latex('$' + to_latex(mat, **kwargs) + '$'))
+    elif method == "str":
+        display_pretty(to_str(mat, **kwargs), raw=True)
     else:
         raise ValueError("Unknown method: " + method)
 
@@ -253,4 +293,4 @@ def _register_jupyter_formatter(mime_type: str, repr_method: Callable):
                 formatter.for_type_by_name(type_module, type_name, repr_method)
 
 
-__all__ = ["to_html", "to_latex", "mdisplay"]
+__all__ = ["to_html", "to_latex", "to_str", "mprint", "mdisplay"]
