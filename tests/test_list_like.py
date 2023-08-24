@@ -4,13 +4,14 @@
 
 import unittest
 
-from matrepr import to_html, to_latex
+from matrepr import to_html, to_latex, to_str
 import matrepr
 
 
 class ListLikeTests(unittest.TestCase):
     def setUp(self):
         self.mats = [
+            [],
             [1, 2, 3, 4],
             (1, 2, 3, 4),
             [[1, 2], [1003, 1004]],
@@ -45,6 +46,9 @@ class ListLikeTests(unittest.TestCase):
         self.assertGreater(len(res), 10)
 
         res = to_latex(list_mat, title=True)
+        self.assertGreater(len(res), 10)
+
+        res = to_str(list_mat, title=True)
         self.assertGreater(len(res), 10)
 
     def test_shape(self):

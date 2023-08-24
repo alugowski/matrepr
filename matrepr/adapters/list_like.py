@@ -14,7 +14,7 @@ class ListAdapter(MatrixAdapterRow):
     def __init__(self, mat: list):
         self.mat = mat
         self.row_lengths = [(1 if is_single(row) else len(row)) for row in mat]
-        self.shape = (len(mat), max(self.row_lengths))
+        self.shape = (len(mat), max(self.row_lengths if self.row_lengths else [0]))
         self.nnz = sum((1 if is_single(row) else len(row) - row.count(None)) for row in mat)
 
     def get_shape(self) -> Tuple[int, int]:

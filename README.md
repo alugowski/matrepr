@@ -25,6 +25,27 @@ Turn this opaque string:
 
 To one of these:
 
+### String
+
+```
+1000×1000, 212345 'float64' elements, coo
+        0        1        2        3        4        5     
+    ┌                                                           ┐
+  0 │                                     0.3876            ... │
+  1 │ 0.5801   0.5085            0.8927                     ... │
+  2 │                                                       ... │
+  3 │                   0.7142                              ... │
+  4 │                                              0.8631   ... │
+  5 │ 0.7863   0.1298   0.9918    0.71                      ... │
+  6 │                   0.9481                              ... │
+  7 │                                                       ... │
+  8 │                                     0.4023            ... │
+    │   :        :        :        :        :        :      ... │
+    └                                                           ┘
+```
+
+`mprint(A)`. Use `to_str()` for the string.
+
 ### HTML
 ![HTML](doc/images/html.png)
 
@@ -46,9 +67,11 @@ pip install matrepr
 from matrepr import mdisplay
 ```
 
-* `mdisplay(A)`: Displays the output of `to_html` or `to_latex` in Jupyter.
+* `to_str(A)`: Format `A` as string.
 * `to_html(A)`: Format `A` as an HTML table. Returns a string.
 * `to_latex(A)`: Format `A` as a LaTeX matrix. Returns a string.
+* `mprint(A)`: print `A` as a string to stdout.
+* `mdisplay(A)`: Displays the output of `to_html`, `to_latex`, or `to_str` in Jupyter.
 
 ## Jupyter Integration
 
