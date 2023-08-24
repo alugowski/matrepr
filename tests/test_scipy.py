@@ -53,5 +53,19 @@ class SciPyTests(unittest.TestCase):
                 self.assertEqual(expected[i], res)
 
 
+class PatchSciPyTests(unittest.TestCase):
+    def test_patch_scipy(self):
+        source_mat = scipy.sparse.coo_matrix(([111, 222], ([0, 1], [0, 1])), shape=(10, 10))
+
+        # noinspection PyUnresolvedReferences
+        import matrepr.patch.scipy
+
+        for fmt in ["coo", "csr", "csc", "dok", "lil"]:
+            mat = source_mat.asformat(fmt)
+            res = repr(mat)
+            self.assertIn("222", res)
+            self.assertIn("┌", res)  # a character used by MatRepr
+
+
 if __name__ == '__main__':
     unittest.main()
