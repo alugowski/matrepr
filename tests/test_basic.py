@@ -35,6 +35,7 @@ class BasicTests(unittest.TestCase):
         mat = [[1, 2], [1003, 1004]]
         matrepr.mdisplay(mat, "html")
         matrepr.mdisplay(mat, "latex")
+        matrepr.mdisplay(mat, "str")
 
         with self.assertRaises(ValueError):
             matrepr.mdisplay(mat, "foobar")

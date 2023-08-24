@@ -4,7 +4,7 @@
 
 # MatRepr
 
-Sparse matrix HTML and LaTeX representation with Jupyter integration. For Spy plots see [MatSpy](https://github.com/alugowski/matspy).
+Sparse matrix string, HTML, and LaTeX representation with Jupyter integration. For Spy plots see [MatSpy](https://github.com/alugowski/matspy).
 
 Supports:
 * `scipy.sparse` sparse matrices and arrays like `csr_matrix` and `coo_array`.
