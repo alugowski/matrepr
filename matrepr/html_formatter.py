@@ -31,11 +31,8 @@ class HTMLTableFormatter(BaseFormatter):
         self.cell_align = cell_align
         self.floatfmt = floatfmt if floatfmt else lambda f: format(f)
         self.indent_width = 4
-        self.left_td_class = None
-        self.right_td_class = None
-        self.thead_class = None
         self.center_header = False
-        self.table_attributes = None
+        self.table_attributes = {}
 
     # noinspection PyMethodMayBeStatic
     def _attributes_to_string(self, attributes: dict) -> str:
@@ -83,7 +80,7 @@ class HTMLTableFormatter(BaseFormatter):
             fmt.num_after_dots = 0
             fmt.title = None
             fmt.indices = False
-            fmt.table_attributes = {"style": "margin: 0 auto;"}
+            fmt.table_attributes["style"] = "margin: 0 auto;"
             return "\n" + str(fmt.format(adapter, indent=current_indent + self.indent_width))
 
         return html.escape(str(obj))
@@ -104,8 +101,7 @@ class HTMLTableFormatter(BaseFormatter):
 
         # Header
         if self.indices:
-            thead_class = f' class="{self.thead_class}"' if self.thead_class else ""
-            self.write(f'<thead{thead_class}>', indent=body_indent)
+            self.write(f'<thead>', indent=body_indent)
             self.write("<tr>", indent=body_indent)
             if row_labels:
                 self.write(f"<th></th>", indent=cell_indent)
@@ -124,13 +120,7 @@ class HTMLTableFormatter(BaseFormatter):
 
             col_range = (0, ncols)
             for col_idx, cell in enumerate(mat.get_dense_row(row_idx, col_range=col_range)):
-                td_classes = []
-                if col_idx == col_range[0] and self.left_td_class:
-                    td_classes.append(self.left_td_class)
-                if col_idx == col_range[1] - 1 and self.right_td_class:
-                    td_classes.append(self.right_td_class)
-                td_class = f' class="{" ".join(td_classes)}"' if td_classes else ""
-                self.write(f"<td{td_class}>{self.pprint(cell, cell_indent)}</td>", cell_indent)
+                self.write(f"<td>{self.pprint(cell, cell_indent)}</td>", cell_indent)
 
             self.write("</tr>", body_indent)
 
@@ -157,18 +147,66 @@ class HTMLTableFormatter(BaseFormatter):
 class NotebookHTMLFormatter(HTMLTableFormatter):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.wrote_style = False
 
     def _write_style(self):
-        index_attributes = {"font-size": "smaller", "vertical-align": "middle"}
+        if self.wrote_style:
+            return
+        else:
+            self.wrote_style = True
+
         self.write("<style scoped>")
+
+        index_attributes = {
+            "font-size": "smaller",
+            "vertical-align": "middle"
+        }
+
+        border = "solid 2px"
+
+        # for bracket tick marks
+        tick_common = {
+            "content": '""',
+            "width": "4px",
+            "position": "absolute",
+            "top": 0,
+            "bottom": 0,
+            "visibility": "visible",
+        }
+        left_ticks = {
+            **tick_common,
+            "left": 0,
+            "right": "auto",
+        }
+        right_ticks = {
+            **tick_common,
+            "left": "auto",
+            "right": 0,
+        }
+
+        self.table_attributes["class"] = "matrepr"
+        table = "table.matrepr "
+        thead = table + "thead "
+        tbody = table + "tbody "
+
+        empty_content = r'"\00a0\00a0\00a0"'  # will be doubled
+
         for tags, attributes in [
-            ("thead.head_no_border", {"border": "0px"}),
-            ("tbody tr th", {**index_attributes, "text-align": "right"}),  # row indices
-            ("thead tr th", {**index_attributes, "text-align": "center"}),  # column indices
-            ("tbody tr td", {"vertical-align": "middle", "text-align": self.cell_align}),
-            ("tbody tr td.left_cell", {"border-left": "solid 2px"}),  # left border
-            ("tbody tr td.right_cell", {"border-right": "solid 2px"}),  # right border
-            ("tbody tr td:empty::after", {"content": "'&nbsp;'", "visibility": "hidden"}),  # fill empty cells
+            (table, {"border-collapse": "collapse"}),  # already in Jupyter style, but not if copy/pasted elsewhere
+            (thead, {"border": "0px"}),
+            (tbody + "tr th", {**index_attributes, "text-align": "right"}),  # row indices
+            (thead + "tr th", {**index_attributes, "text-align": "center"}),  # column indices
+            (tbody + "tr td", {"vertical-align": "middle", "text-align": self.cell_align, "position": "relative"}),
+            (tbody + "tr td:first-of-type", {"border-left": border}),  # left border
+            (tbody + "tr td:last-of-type", {"border-right": border}),  # right border
+            # need two of these because ticks may narrow down one of them
+            (tbody + "tr td:empty::before", {"content": empty_content, "visibility": "hidden"}),  # fill empty cells
+            (tbody + "tr td:empty::after", {"content": empty_content, "visibility": "hidden"}),  # fill empty cells
+            # ticks
+            (tbody + "tr:first-child td:first-of-type::before", {**left_ticks, "border-top": border}),
+            (tbody + "tr:last-child td:first-of-type::before", {**left_ticks, "border-bottom": border}),
+            (tbody + "tr:first-child td:last-of-type::after", {**right_ticks, "border-top": border}),
+            (tbody + "tr:last-child td:last-of-type::after", {**right_ticks, "border-bottom": border}),
         ]:
             self.write(f"{tags} " + '{', indent=self.indent_width)
             for k, v in attributes.items():
@@ -179,9 +217,6 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
     def format(self, mat: MatrixAdapter, indent: int = 0):
         self.write("<div>")
         self._write_style()
-        self.left_td_class = "left_cell"
-        self.right_td_class = "right_cell"
-        self.thead_class = "head_no_border"
         self.center_header = True
         super().format(mat, indent=indent)
         self.write("</div>")
