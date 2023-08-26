@@ -10,12 +10,16 @@ def is_single(x):
     return not hasattr(x, '__len__') or isinstance(x, str)
 
 
+def count_none(iterable):
+    return sum((1 if x is None else 0) for x in iterable)
+
+
 class ListAdapter(MatrixAdapterRow):
     def __init__(self, mat: list):
         self.mat = mat
         self.row_lengths = [(1 if is_single(row) else len(row)) for row in mat]
         self.shape = (len(mat), max(self.row_lengths if self.row_lengths else [0]))
-        self.nnz = sum((1 if is_single(row) else len(row) - row.count(None)) for row in mat)
+        self.nnz = sum((1 if is_single(row) else len(row) - count_none(row)) for row in mat)
 
     def get_shape(self) -> Tuple[int, int]:
         return self.shape
@@ -24,7 +28,7 @@ class ListAdapter(MatrixAdapterRow):
         return describe(shape=self.shape, nnz=self.nnz, notes=None)
 
     def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
-        row = self.mat[row_idx]
+        row = self.mat if len(self.shape) == 1 else self.mat[row_idx]
 
         if is_single(row):
             # this row is a single element

@@ -30,18 +30,28 @@ class ListLikeTests(unittest.TestCase):
         try:
             # noinspection PyUnresolvedReferences
             from scipy.sparse import coo_matrix
+            # noinspection PyUnresolvedReferences
+            import numpy as np
+
             sps_mat = coo_matrix(([1, 2, 3, 4], ([0, 0, 1, 1], [0, 1, 0, 1])), shape=(2, 2))
+
+            dtype_a = np.dtype([("x", np.bool_), ("y", np.int64)], align=True)
+            np_a = np.array([(False, 2)], dtype=dtype_a)[0]
+            dtype_b = np.dtype("(3,)uint16")
+            np_b = np.array([(1, 2, 3)], dtype=dtype_b)[0]
         except ImportError:
             sps_mat = None
+            np_a = None
+            np_b = None
 
         list_mat = [
             (0, 12e34, 1e-6, None, 123456789),
             1,
             [complex(1, 2), complex(123456, 0.123456)],
-            [[1], sps_mat, [3.1, 3.2, 3.3], [[1.1, 2.2], [3.3, 4.4]]],
+            [[1], sps_mat, [2.1, 2.2], [[1.1, 2.2], [3.3, 4.4]]],
             ["multiline\nstring", "<escape!>", "\\begin{escape!}", {"a Python set"}],
+            [np_a, np_b]
         ]
-
         res = to_html(list_mat, notebook=True, title=True)
         self.assertGreater(len(res), 10)
 
