@@ -2,6 +2,8 @@
 # Use of this source code is governed by the BSD 2-clause license found in the LICENSE.txt file.
 # SPDX-License-Identifier: BSD-2-Clause
 
+import numpy as np
+
 from .adapters import MatrixAdapter, MatrixAdapterRow, Truncated2DMatrix, to_trunc, DupeList
 from .base_formatter import unicode_dots
 
@@ -37,11 +39,15 @@ class ListConverter:
         if obj is None:
             return ""
 
-        if type(obj).__module__ == "numpy":
-            obj = obj.item()
-
         if isinstance(obj, (int, float)):
             return self.floatfmt(obj)
+
+        if type(obj).__module__ == "numpy" and np.isscalar(obj):
+            py = obj.item()
+            if isinstance(py, (int, float, complex, bool, str, bytes)):
+                obj = py
+            else:
+                obj = str(obj)
 
         if isinstance(obj, complex):
             sign = "-" if obj.imag < 0 else "+"
