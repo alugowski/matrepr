@@ -30,12 +30,13 @@ class ListConverter:
         self.max_cols = max_cols
         self.num_after_dots = num_after_dots
         self.floatfmt = floatfmt
+        self.empty_cell = ""
         self.replace_newline_char = " "
         self.use_fixed_width_dots = True
 
     def pprint(self, obj):
         if obj is None:
-            return ""
+            return self.empty_cell
 
         if isinstance(obj, (int, float)):
             formatted = self.floatfmt(obj)
@@ -85,7 +86,7 @@ class ListConverter:
 
         return obj
 
-    def _write_matrix(self, mat: MatrixAdapterRow, empty_cell="", is_vector=False):
+    def _write_matrix(self, mat: MatrixAdapterRow, is_vector=False):
         if isinstance(mat, Truncated2DMatrix):
             mat.apply_dots(unicode_dots)
 
@@ -95,10 +96,9 @@ class ListConverter:
 
         # values
         for row_idx in range(nrows):
-            row = [empty_cell] * ncols
+            row = [self.empty_cell] * ncols
             for col_idx, cell in mat.get_row(row_idx, col_range=(0, ncols)):
-                if cell is not None:
-                    row[col_idx] = self.pprint(cell)
+                row[col_idx] = self.pprint(cell)
 
             ret.append(row)
         return ret[0] if is_vector else ret
