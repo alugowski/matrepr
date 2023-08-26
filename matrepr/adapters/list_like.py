@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from typing import Any, Iterable, Tuple
-from . import describe, Driver, MatrixAdapterRow
+from . import describe, Driver, MatrixAdapterRow, MatrixAdapterCol
 
 
 def is_single(x):
@@ -18,7 +18,12 @@ class ListAdapter(MatrixAdapterRow):
     def __init__(self, mat: list):
         self.mat = mat
         self.row_lengths = [(1 if is_single(row) else len(row)) for row in mat]
-        self.shape = (len(mat), max(self.row_lengths if self.row_lengths else [0]))
+        if len(mat) == 0 or all(is_single(row) for row in mat):
+            # 1D
+            self.shape = (len(mat),)
+        else:
+            # 2D
+            self.shape = (len(mat), max(self.row_lengths if self.row_lengths else [0]))
         self.nnz = sum((1 if is_single(row) else len(row) - count_none(row)) for row in mat)
 
     def get_shape(self) -> Tuple[int, int]:
@@ -38,6 +43,23 @@ class ListAdapter(MatrixAdapterRow):
                 return ()
         else:
             return enumerate(row[col_range[0]:col_range[1]], start=col_range[0])
+
+
+class List1DColumnAdapter(MatrixAdapterCol):
+    def __init__(self, mat: list):
+        self.mat = mat
+        self.shape = (len(mat), 1)
+        self.nnz = len(mat)
+
+    def get_shape(self) -> tuple:
+        return self.shape
+
+    def describe(self) -> str:
+        return describe(shape=self.shape, nnz=self.nnz, notes=None)
+
+    def get_col(self, col_idx: int, row_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
+        assert col_idx == 0
+        return enumerate(self.mat[row_range[0]:row_range[1]], start=row_range[0])
 
 
 class ListDriver(Driver):

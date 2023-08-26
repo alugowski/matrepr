@@ -81,7 +81,7 @@ def max_line_width(s: str):
     return max(len(line) for line in s.split("\n"))
 
 
-def _to_tabulate_args(adapter: MatrixAdapter, **kwargs) -> Tuple[Dict, Optional[TableFormat]]:
+def _to_tabulate_args(mat: Any, **kwargs) -> Tuple[Dict, Optional[TableFormat]]:
     """
     Creates arguments for :func:`~tabulate.tabulate` to format the matrix.
 
@@ -89,16 +89,17 @@ def _to_tabulate_args(adapter: MatrixAdapter, **kwargs) -> Tuple[Dict, Optional[
     between the index column and data columns. Therefore, index output renders a corrupted output that is then patched
     using :func:`_tabulate_sep_to_border`.
 
-    :param adapter: Adapted matrix.
+    :param mat: A supported matrix.
     :param kwargs: Any argument in :class:`MatReprParams`, or any argument supported by :func:`~tabulate.tabulate`.
     :return: the argument dictionary and an object. If the object is not None then :func:`_tabulate_sep_to_border`
              must be called with the tabulate output and this object.
     """
+    adapter = _get_adapter(mat)
     options = params.get(**kwargs)
 
     # collect the data
     conv = ListConverter(**options.to_kwargs())
-    data, row_labels, col_labels = conv.to_lists_and_labels(adapter)
+    data, row_labels, col_labels = conv.to_lists_and_labels(adapter, is_1d_ok=False)
 
     # determine the table format
     if "tablefmt" in kwargs:
@@ -154,24 +155,31 @@ def to_tabulate(mat: Any, **kwargs) -> str:
     options = params.get(**kwargs)
     adapter = _get_adapter(mat)
 
-    if options.txt_width:
-        cols = max(1, int(options.txt_width / 3))  # minimum 3 chars per column (if empty)
-        trunc = to_trunc(adapter, options.max_rows, cols, options.num_after_dots)
+    # tabulate SEPARATING_LINE detection will compare an element to a string. If that element happens to be a
+    # numpy array, numpy issues this warning. Safe to ignore.
+    import warnings
+    with warnings.catch_warnings():
+        warnings.filterwarnings(action='ignore', category=FutureWarning,
+                                message="elementwise comparison failed; returning scalar instead")
 
-        args, patch_tf = _to_tabulate_args(trunc, **kwargs)
-        ret = tabulate(**args)
-        ret_width = max_line_width(ret)
+        if options.txt_width:
+            cols = max(1, int(options.txt_width / 3))  # minimum 3 chars per column (if empty)
+            trunc = to_trunc(adapter, options.max_rows, cols, options.num_after_dots)
 
-        while ret_width > options.txt_width and cols > 1:
-            # too wide
-            cols = trunc.drop_column()
             args, patch_tf = _to_tabulate_args(trunc, **kwargs)
             ret = tabulate(**args)
             ret_width = max_line_width(ret)
 
-    else:
-        args, patch_tf = _to_tabulate_args(adapter, **kwargs)
-        ret = tabulate(**args)
+            while ret_width > options.txt_width and cols > 1:
+                # too wide
+                cols = trunc.drop_column()
+                args, patch_tf = _to_tabulate_args(trunc, **kwargs)
+                ret = tabulate(**args)
+                ret_width = max_line_width(ret)
+
+        else:
+            args, patch_tf = _to_tabulate_args(adapter, **kwargs)
+            ret = tabulate(**args)
 
     if patch_tf:
         ret = _tabulate_sep_to_border(ret, patch_tf)

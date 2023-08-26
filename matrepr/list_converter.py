@@ -81,29 +81,30 @@ class ListConverter:
 
         return obj
 
-    def _write_matrix(self, mat: MatrixAdapterRow, empty_cell=""):
+    def _write_matrix(self, mat: MatrixAdapterRow, empty_cell="", is_vector=False):
         if isinstance(mat, Truncated2DMatrix):
             mat.apply_dots(unicode_dots)
 
         nrows, ncols = mat.get_shape()
 
         ret = []
-        for row in range(nrows):
-            ret.append([empty_cell] * ncols)
 
         # values
         for row_idx in range(nrows):
+            row = [empty_cell] * ncols
             for col_idx, cell in mat.get_row(row_idx, col_range=(0, ncols)):
                 if cell is not None:
-                    ret[row_idx][col_idx] = self.pprint(cell)
+                    row[col_idx] = self.pprint(cell)
 
-        return ret
+            ret.append(row)
+        return ret[0] if is_vector else ret
 
-    def to_lists_and_labels(self, mat: MatrixAdapter):
+    def to_lists_and_labels(self, mat: MatrixAdapter, is_1d_ok=True):
+        is_vector = is_1d_ok and len(mat.get_shape()) == 1
         if not isinstance(mat, MatrixAdapterRow) or \
                 len(mat.get_shape()) != 2 or \
                 mat.get_shape()[0] > self.max_rows or \
                 mat.get_shape()[1] > self.max_cols:
             mat = to_trunc(mat, self.max_rows, self.max_cols, self.num_after_dots)
 
-        return self._write_matrix(mat), mat.get_row_labels(), mat.get_col_labels()
+        return self._write_matrix(mat, is_vector=is_vector), mat.get_row_labels(), mat.get_col_labels()

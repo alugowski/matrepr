@@ -185,6 +185,8 @@ def _get_driver(mat, unsupported_raise=True):
 
 
 def _get_adapter(mat, unsupported_raise=True) -> MatrixAdapter:
+    if isinstance(mat, MatrixAdapter):
+        return mat
     driver = _get_driver(mat, unsupported_raise=unsupported_raise)
     adapter = driver.adapt(mat) if driver else None
     if not adapter and unsupported_raise:

@@ -52,6 +52,7 @@ class ListLikeTests(unittest.TestCase):
             ["multiline\nstring", "<escape!>", "\\begin{escape!}", {"a Python set"}],
             [np_a, np_b]
         ]
+
         res = to_html(list_mat, notebook=True, title=True)
         self.assertGreater(len(res), 10)
 
@@ -64,7 +65,7 @@ class ListLikeTests(unittest.TestCase):
     def test_shape(self):
         mat = (1, 2, 3, 4)
         adapter = matrepr._get_adapter(mat)
-        self.assertEqual((4, 1), adapter.get_shape())
+        self.assertEqual((4,), adapter.get_shape())
 
         mat = [[1, 2], [1003, 1004, 1005]]
         adapter = matrepr._get_adapter(mat)

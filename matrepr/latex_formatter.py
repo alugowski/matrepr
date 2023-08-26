@@ -90,8 +90,8 @@ class LatexFormatter(BaseFormatter):
             fmt = LatexFormatter(max_rows=len(obj), max_cols=1, num_after_dots=0, title_latex=None,
                                  latex_matrix_env=dupe_list_env, latex_dupe_matrix_env=self.dupe_env,
                                  floatfmt_latex=self.floatfmt)
-            from .adapters.list_like import ListAdapter
-            return str(fmt.format(ListAdapter(obj)))
+            from .adapters.list_like import List1DColumnAdapter
+            return str(fmt.format(List1DColumnAdapter(obj)))
 
         from . import _get_adapter
         adapter = _get_adapter(obj, unsupported_raise=False)
