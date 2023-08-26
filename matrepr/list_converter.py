@@ -41,14 +41,14 @@ class ListConverter:
 
         if isinstance(obj, (int, float)):
             formatted = self.floatfmt(obj)
-            return obj if str(obj) == formatted else formatted
+            return obj if repr(obj) == formatted else formatted
 
         if type(obj).__module__ == "numpy" and np.isscalar(obj):
             py = obj.item()
             if isinstance(py, (int, float, complex, bool, str, bytes)):
-                obj = py
+                obj = py  # fall through for possible further rendering
             else:
-                obj = str(obj)
+                return repr(obj)
 
         if isinstance(obj, complex):
             sign = "-" if obj.imag < 0 else "+"
@@ -64,8 +64,7 @@ class ListConverter:
                 return unicode_to_fixed_width[obj]
             if obj in unicode_dots.values():
                 return obj
-            if "\n" in obj:
-                obj = obj.replace("\n", self.replace_newline_char)
+            return repr(obj)
 
         if isinstance(obj, DupeList):
             return [self.pprint(sub) for sub in obj]
