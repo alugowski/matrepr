@@ -51,6 +51,8 @@ class ListConverter:
                     obj = py  # fall through for possible further rendering
                 else:
                     return repr(obj)
+            else:
+                return str(obj)
 
         if isinstance(obj, complex):
             sign = "-" if obj.imag < 0 else "+"

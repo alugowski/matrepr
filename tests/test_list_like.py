@@ -59,7 +59,14 @@ class ListLikeTests(unittest.TestCase):
         res = to_latex(list_mat, title=True)
         self.assertGreater(len(res), 10)
 
-        res = to_str(list_mat, title=True)
+        # tabulate SEPARATING_LINE detection will compare an element to a string. If that element happens to be a
+        # numpy array, numpy issues this warning. It's a ValueError in future versions.
+        # Ensure it's not thrown.
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(action='error', category=FutureWarning)
+
+            res = to_str(list_mat, title=True)
         self.assertGreater(len(res), 10)
 
     def test_shape(self):

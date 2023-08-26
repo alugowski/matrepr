@@ -188,31 +188,24 @@ def to_tabulate(mat: Any, **kwargs) -> str:
     options = params.get(**kwargs)
     adapter = _get_adapter(mat)
 
-    # tabulate SEPARATING_LINE detection will compare an element to a string. If that element happens to be a
-    # numpy array, numpy issues this warning. Safe to ignore.
-    import warnings
-    with warnings.catch_warnings():
-        warnings.filterwarnings(action='ignore', category=FutureWarning,
-                                message="elementwise comparison failed; returning scalar instead")
+    if options.txt_width:
+        cols = max(1, int(options.txt_width / 3))  # minimum 3 chars per column (if empty)
+        trunc = to_trunc(adapter, options.max_rows, cols, options.num_after_dots)
 
-        if options.txt_width:
-            cols = max(1, int(options.txt_width / 3))  # minimum 3 chars per column (if empty)
-            trunc = to_trunc(adapter, options.max_rows, cols, options.num_after_dots)
+        args, patch_tf = _to_tabulate_args(trunc, **kwargs)
+        ret = tabulate(**args)
+        ret_width = max_line_width(ret)
 
+        while ret_width > options.txt_width and cols > 1:
+            # too wide
+            cols = trunc.drop_column()
             args, patch_tf = _to_tabulate_args(trunc, **kwargs)
             ret = tabulate(**args)
             ret_width = max_line_width(ret)
 
-            while ret_width > options.txt_width and cols > 1:
-                # too wide
-                cols = trunc.drop_column()
-                args, patch_tf = _to_tabulate_args(trunc, **kwargs)
-                ret = tabulate(**args)
-                ret_width = max_line_width(ret)
-
-        else:
-            args, patch_tf = _to_tabulate_args(adapter, **kwargs)
-            ret = tabulate(**args)
+    else:
+        args, patch_tf = _to_tabulate_args(adapter, **kwargs)
+        ret = tabulate(**args)
 
     if patch_tf:
         ret = _tabulate_sep_to_border(ret, patch_tf)
