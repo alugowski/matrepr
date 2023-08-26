@@ -115,7 +115,7 @@ class PatchGraphBLASTests(unittest.TestCase):
 
         res = repr(vec)
         self.assertIn("222", res)
-        self.assertIn("┌", res)  # a character used by MatRepr
+        self.assertIn("[", res)  # a character used by MatRepr
 
 
 if __name__ == '__main__':

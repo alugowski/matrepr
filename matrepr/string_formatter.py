@@ -9,6 +9,35 @@ from . import params, _get_adapter
 from .adapters import to_trunc
 from .list_converter import ListConverter
 
+row_vector_table_format = TableFormat(
+    lineabove=None,
+    linebelowheader=None,
+    linebetweenrows=None,
+    linebelow=None,
+    headerrow=DataRow(" ", "  ", " "),
+    datarow=DataRow("[", "  ", "]"),
+    padding=0,
+    with_header_hide=None,
+)
+"""
+Renders a table that looks like a horizontal list, supporting a column index header.
+"""
+
+row_vector_comma_table_format = TableFormat(
+    lineabove=None,
+    linebelowheader=None,
+    linebetweenrows=None,
+    linebelow=None,
+    headerrow=DataRow(" ", "  ", " "),
+    datarow=DataRow("[", ", ", "]"),
+    padding=0,
+    with_header_hide=None,
+)
+"""
+Renders a table that looks like a horizontal list, using comma separators instead of a header.
+"""
+
+
 matrix_table_format = TableFormat(
     lineabove=Line("┌", " ", " ", "┐"),
     linebelowheader=Line("┌", " ", " ", "┐"),
@@ -102,15 +131,19 @@ def _to_tabulate_args(mat: Any, **kwargs) -> Tuple[Dict, Optional[TableFormat]]:
     data, row_labels, col_labels = conv.to_lists_and_labels(adapter, is_1d_ok=False)
 
     # determine the table format
+    patch_required = None
     if "tablefmt" in kwargs:
         matrix_format = kwargs["tablefmt"]
-        patch_required = None
+    elif not row_labels:
+        # horizontal vector
+        matrix_format = row_vector_table_format if options.indices else row_vector_comma_table_format
     elif options.indices and row_labels:
+        # matrix with row and column indices
         matrix_format = matrix_format_patched_indices
         patch_required = matrix_format_patched_indices
     else:
+        # matrix without row indices (column indices ok)
         matrix_format = matrix_table_format
-        patch_required = None
 
     # collect floatfmt argument
     if "floatfmt" in kwargs and isinstance(kwargs["floatfmt"], str):
