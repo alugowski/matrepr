@@ -26,7 +26,7 @@ class ListLikeTests(unittest.TestCase):
             res = to_latex(mat, title=True)
             self.assertGreater(len(res), 10)
 
-    def test_no_crash_edgecases(self):
+    def test_no_crash_edge_cases(self):
         try:
             # noinspection PyUnresolvedReferences
             from scipy.sparse import coo_matrix

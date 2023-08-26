@@ -6,7 +6,7 @@ from typing import Any, Dict, Tuple, Optional
 from tabulate import tabulate, TableFormat, Line, DataRow
 
 from . import params, _get_adapter
-from .adapters import MatrixAdapter, to_trunc
+from .adapters import to_trunc
 from .list_converter import ListConverter
 
 matrix_table_format = TableFormat(

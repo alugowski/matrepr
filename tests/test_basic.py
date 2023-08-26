@@ -25,7 +25,7 @@ class JupyterImportTests(unittest.TestCase):
 
 
 class BasicTests(unittest.TestCase):
-    def test_nocrash_mdisplay(self):
+    def test_no_crash_mdisplay(self):
         try:
             import IPython
         except ImportError:
@@ -40,7 +40,7 @@ class BasicTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             matrepr.mdisplay(mat, "foobar")
 
-    def test_nocrash_mprint(self):
+    def test_no_rash_mprint(self):
         mat = [[1000, 1001]]
         matrepr.mprint(mat)
         self.assertEqual(True, True)  # did not raise
