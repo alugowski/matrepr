@@ -40,7 +40,8 @@ class ListConverter:
             return ""
 
         if isinstance(obj, (int, float)):
-            return self.floatfmt(obj)
+            formatted = self.floatfmt(obj)
+            return obj if str(obj) == formatted else formatted
 
         if type(obj).__module__ == "numpy" and np.isscalar(obj):
             py = obj.item()
@@ -51,8 +52,8 @@ class ListConverter:
 
         if isinstance(obj, complex):
             sign = "-" if obj.imag < 0 else "+"
-            r = self.pprint(obj.real).replace("e+", "e")
-            c = self.pprint(obj.imag).replace("e+", "e")
+            r = str(self.pprint(obj.real)).replace("e+", "e")
+            c = str(self.pprint(obj.imag)).replace("e+", "e")
             if "e" in r:
                 # add space to visually separate the exponent from the complex plus
                 sign = f" {sign} "
