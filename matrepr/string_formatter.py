@@ -6,6 +6,7 @@ from typing import Any, Dict, Tuple, Optional
 from tabulate import tabulate, TableFormat, Line, DataRow
 
 from . import params, _get_adapter
+from .adapters import MatrixAdapter, to_trunc
 from .list_converter import ListConverter
 
 matrix_table_format = TableFormat(
@@ -76,7 +77,11 @@ def _labels_to_str(labels):
         yield "" if label is None else str(label)
 
 
-def _to_tabulate_args(mat: Any, **kwargs) -> Tuple[Dict, Optional[TableFormat]]:
+def max_line_width(s: str):
+    return max(len(line) for line in s.split("\n"))
+
+
+def _to_tabulate_args(adapter: MatrixAdapter, **kwargs) -> Tuple[Dict, Optional[TableFormat]]:
     """
     Creates arguments for :func:`~tabulate.tabulate` to format the matrix.
 
@@ -84,13 +89,12 @@ def _to_tabulate_args(mat: Any, **kwargs) -> Tuple[Dict, Optional[TableFormat]]:
     between the index column and data columns. Therefore, index output renders a corrupted output that is then patched
     using :func:`_tabulate_sep_to_border`.
 
-    :param mat: A supported matrix.
+    :param adapter: Adapted matrix.
     :param kwargs: Any argument in :class:`MatReprParams`, or any argument supported by :func:`~tabulate.tabulate`.
     :return: the argument dictionary and an object. If the object is not None then :func:`_tabulate_sep_to_border`
              must be called with the tabulate output and this object.
     """
     options = params.get(**kwargs)
-    adapter = _get_adapter(mat)
 
     # collect the data
     conv = ListConverter(**options.to_kwargs())
@@ -147,8 +151,27 @@ def to_tabulate(mat: Any, **kwargs) -> str:
     :param kwargs: Any argument in :class:`MatReprParams`, or any argument supported by :func:`~tabulate.tabulate`.
     :return: output of :func:`~tabulate.tabulate`
     """
-    args, patch_tf = _to_tabulate_args(mat, **kwargs)
-    ret = tabulate(**args)
+    options = params.get(**kwargs)
+    adapter = _get_adapter(mat)
+
+    if options.txt_width:
+        cols = max(1, int(options.txt_width / 3))  # minimum 3 chars per column (if empty)
+        trunc = to_trunc(adapter, options.max_rows, cols, options.num_after_dots)
+
+        args, patch_tf = _to_tabulate_args(trunc, **kwargs)
+        ret = tabulate(**args)
+        ret_width = max_line_width(ret)
+
+        while ret_width > options.txt_width and cols > 1:
+            # too wide
+            cols = trunc.drop_column()
+            args, patch_tf = _to_tabulate_args(trunc, **kwargs)
+            ret = tabulate(**args)
+            ret_width = max_line_width(ret)
+
+    else:
+        args, patch_tf = _to_tabulate_args(adapter, **kwargs)
+        ret = tabulate(**args)
 
     if patch_tf:
         ret = _tabulate_sep_to_border(ret, patch_tf)

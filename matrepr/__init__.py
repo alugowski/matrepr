@@ -4,6 +4,7 @@
 
 import dataclasses
 from dataclasses import dataclass, asdict
+from shutil import get_terminal_size
 from typing import Any, Type, Callable, Dict, List, Union
 
 from .adapters import Driver, MatrixAdapter
@@ -18,6 +19,15 @@ class MatReprParams:
 
     max_cols: int = 15
     """Maximum number of columns in HTML and Latex output."""
+
+    txt_width: int = None
+    """
+    Maximum width of text output.
+     - If 0 then autodetect terminal size.
+     - If None then use max_cols.
+
+    Some methods that print to the terminal may automatically set this value.
+    """
 
     num_after_dots: Union[int, float] = 0.5
     """
@@ -112,6 +122,16 @@ class MatReprParams:
 
         if ret.floatfmt_latex is None:
             ret.floatfmt_latex = lambda f: python_scientific_to_latex_times10(ret.floatfmt(f))
+
+        # compute values
+        if ret.txt_width == 0:
+            txt_width, _ = get_terminal_size()
+            ret.txt_width = txt_width
+        elif kwargs.get("auto_txt_width", False) and "txt_width" not in kwargs and "max_cols" not in kwargs:
+            txt_width, _ = get_terminal_size(fallback=(0, 0))
+            if txt_width:
+                # in a terminal
+                ret.txt_width = txt_width
 
         return ret
 
@@ -246,7 +266,7 @@ def mprint(mat: Any, **kwargs):
     :param mat: A supported matrix.
     :param kwargs: Any argument in :class:`MatReprParams`.
     """
-    print(to_str(mat, **kwargs))
+    print(to_str(mat, auto_txt_width=True, **kwargs))
 
 
 def mdisplay(mat: Any, method="html", **kwargs):
@@ -264,7 +284,7 @@ def mdisplay(mat: Any, method="html", **kwargs):
     elif method == "latex":
         display(Latex('$' + to_latex(mat, **kwargs) + '$'))
     elif method == "str":
-        display_pretty(to_str(mat, **kwargs), raw=True)
+        display_pretty(to_str(mat, auto_txt_width=True, **kwargs), raw=True)
     else:
         raise ValueError("Unknown method: " + method)
 
