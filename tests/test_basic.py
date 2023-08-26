@@ -25,7 +25,7 @@ class JupyterImportTests(unittest.TestCase):
 
 
 class BasicTests(unittest.TestCase):
-    def test_mdisplay(self):
+    def test_nocrash_mdisplay(self):
         try:
             import IPython
         except ImportError:
@@ -39,6 +39,11 @@ class BasicTests(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             matrepr.mdisplay(mat, "foobar")
+
+    def test_nocrash_mprint(self):
+        mat = [[1000, 1001]]
+        matrepr.mprint(mat)
+        self.assertEqual(True, True)  # did not raise
 
     def test_adaptation_errors(self):
         with self.assertRaises(AttributeError):

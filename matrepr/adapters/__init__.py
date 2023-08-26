@@ -52,7 +52,7 @@ class MatrixAdapter(ABC):
         Return the shape of the matrix.
         """
 
-    def get_row_labels(self) -> Iterable[Optional[Any]]:
+    def get_row_labels(self) -> Optional[Iterable[Optional[int]]]:
         return range(self.get_shape()[0])
 
     def get_col_labels(self) -> Iterable[Optional[Any]]:
@@ -150,8 +150,9 @@ class Truncated2DMatrix(MatrixAdapterRow):
         elif len(orig_shape) > 2:
             raise ValueError
         self.orig_shape = orig_shape
-        self.display_shape = (min(orig_shape[0], display_shape[0]), min(orig_shape[1], display_shape[1]))
+        self.display_shape = [min(orig_shape[0], display_shape[0]), min(orig_shape[1], display_shape[1])]
         self.nrows, self.ncols = self.display_shape
+        self.num_after_dots = num_after_dots
         self.elements: List[Any] = [[None] * self.ncols for _ in range(self.nrows)]
         self.description = description
 
@@ -160,17 +161,21 @@ class Truncated2DMatrix(MatrixAdapterRow):
 
         if self.display_shape[0] < self.orig_shape[0]:
             # need to truncate rows
-            if 0 < num_after_dots < 1:
-                self.dot_row = int(self.display_shape[0] * num_after_dots)
-            else:
-                self.dot_row = max(0, self.display_shape[0] - 1 - int(num_after_dots))
+            self.dot_row = self._calc_dots(self.display_shape[0], self.orig_shape[0])
 
         if self.display_shape[1] < self.orig_shape[1]:
             # need to truncate columns
-            if 0 < num_after_dots < 1:
-                self.dot_col = int(self.display_shape[1] * num_after_dots)
-            else:
-                self.dot_col = max(0, self.display_shape[1] - 1 - int(num_after_dots))
+            self.dot_col = self._calc_dots(self.display_shape[1], self.orig_shape[1])
+
+    def _calc_dots(self, display, orig):
+        if display >= orig:
+            return orig
+
+        if 0 < self.num_after_dots < 1:
+            # fractional
+            return int(display * self.num_after_dots)
+        else:
+            return max(0, display - 1 - int(self.num_after_dots))
 
     def describe(self) -> str:
         return self.description
@@ -178,9 +183,9 @@ class Truncated2DMatrix(MatrixAdapterRow):
     def get_shape(self):
         return self.display_shape
 
-    def get_row_labels(self) -> Iterable[Optional[int]]:
+    def get_row_labels(self) -> Optional[Iterable[Optional[int]]]:
         if not self.show_row_labels:
-            return None #[None] * self.orig_shape[0]
+            return None
         if self.dot_row is None:
             return list(range(self.orig_shape[0]))
         else:
@@ -251,6 +256,38 @@ class Truncated2DMatrix(MatrixAdapterRow):
             num_post_dot = self.display_shape[1] - 1 - self.dot_col
             return self.dot_col, self.orig_shape[1] - num_post_dot
 
+    def drop_column(self):
+        if self.display_shape[1] < 2:
+            return self.display_shape[1]
+
+        # determine which column to drop
+        old_dot_col = self.dot_col
+        self.dot_col = self._calc_dots(self.display_shape[1] - 1, self.orig_shape[1])
+
+        if old_dot_col is None:
+            if self.dot_col > 0:
+                drop = self.dot_col - 1
+            else:
+                drop = self.dot_col
+        else:
+            assert self.dot_col <= old_dot_col
+            if self.dot_col == 0:
+                drop = self.dot_col
+            elif self.dot_col < old_dot_col:
+                drop = self.dot_col - 1
+            else:
+                drop = self.dot_col
+
+        # adjust metadata
+        self.display_shape[1] -= 1
+        self.ncols -= 1
+
+        # drop
+        for row in self.elements:
+            row.pop(drop)
+
+        return self.display_shape[1]
+
 
 def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncated2DMatrix:
     """
@@ -300,13 +337,16 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
                 trunc.set(row, col, val)
 
             # fetch the other three quadrants
-            dot_row = trunc.dot_row if trunc.dot_row else 0
-            dot_col = trunc.dot_col if trunc.dot_col else 0
+            dot_row = trunc.dot_row if trunc.dot_row else max_rows
+            dot_col = trunc.dot_col if trunc.dot_col else max_cols
             for row_range, col_range in [
-                ((0, dot_row), (dot_col + 1, ncols)),  # top-right
-                ((dot_row + 1, nrows), (0, dot_col)),  # bottom-right
-                ((dot_row + 1, nrows), (dot_col + 1, ncols)),  # bottom-right
+                ((0, dot_row), (max(max_cols, dot_col + 1), ncols)),  # top-right
+                ((max(max_rows, dot_row + 1), nrows), (0, dot_col)),  # bottom-left
+                ((max(max_rows, dot_row + 1), nrows), (max(max_cols, dot_col + 1), ncols)),  # bottom-right
             ]:
+                if row_range[1] - row_range[0] <= 0 or col_range[1] - col_range[0] <= 0:
+                    continue
+
                 for row, col, val in mat.get_coo(row_range=row_range, col_range=col_range):
                     trunc.set(row, col, val)
         return trunc
