@@ -6,10 +6,10 @@
 
 Sparse matrix string, HTML, and LaTeX representation with Jupyter integration. 
 
-* `scipy.sparse` sparse matrices and arrays like `csr_matrix` and `coo_array`.
-* `python-graphblas` both `Matrix` and `Vector`.
+* SciPy sparse matrices and arrays like `csr_matrix` and `coo_array`
+* [Python-graphblas](https://github.com/python-graphblas/python-graphblas) `Matrix` and `Vector`
 * NumPy `ndarray`
-* `list`, `tuple`, including multi-dimensional.
+* `list`, `tuple`, including multi-dimensional and jagged
 
 ```shell
 pip install matrepr
