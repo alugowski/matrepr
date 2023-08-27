@@ -150,10 +150,7 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
         self.wrote_style = False
 
     def _write_style(self):
-        if self.wrote_style:
-            return
-        else:
-            self.wrote_style = True
+        self.wrote_style = True
 
         self.write("<style scoped>")
 
@@ -215,9 +212,12 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
         self.write("</style>")
 
     def format(self, mat: MatrixAdapter, indent: int = 0):
-        self.write("<div>")
-        self._write_style()
+        write_div = not self.wrote_style
+        if write_div:
+            self.write("<div>")
+            self._write_style()
         self.center_header = True
         super().format(mat, indent=indent)
-        self.write("</div>")
+        if write_div:
+            self.write("</div>")
         return self
