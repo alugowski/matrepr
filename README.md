@@ -4,16 +4,17 @@
 
 # MatRepr
 
-Sparse matrix string, HTML, and LaTeX representation with Jupyter integration. For Spy plots see [MatSpy](https://github.com/alugowski/matspy).
+Sparse matrix string, HTML, and LaTeX representation with Jupyter integration. 
 
-Supports:
 * `scipy.sparse` sparse matrices and arrays like `csr_matrix` and `coo_array`.
-* `python-graphblas` sparse matrices and vectors
-* `list`, `tuple`
+* `python-graphblas` both `Matrix` and `Vector`.
+* `list`, `tuple`, including multi-dimensional.
 
 ```shell
 pip install matrepr
 ```
+
+For Spy plots see [MatSpy](https://github.com/alugowski/matspy).
 
 ## Purpose
 
@@ -159,7 +160,7 @@ Each package that MatRepr supports implements two classes:
 * `Driver`: Declares what types are supported and supplies an adapter.
   * `get_supported_types`: This declares what types are supported, as strings to avoid unnecessary imports.
   * `adapt(A)`: Returns a `MatrixAdapter` for a matrix that this driver supports.
-* `MatrixAdapter`. A common interface for extracting relevant matrix data. MatRepr supports three kinds:
+* `MatrixAdapter`. A common interface for extracting relevant matrix data. MatRepr supports three kinds, only one needs to be implemented:
   * `MatrixAdapterRow`: is able to efficiently read a selected row.
   * `MatrixAdapterCol`: is able to efficiently read a selected column.
   * `MatrixAdapterCoo`: is able to extract a portion of the matrix as tuples.
