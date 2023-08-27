@@ -183,8 +183,8 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
 
         self.table_attributes["class"] = "matrepr"
         table = "table.matrepr "
-        thead = table + "thead "
-        tbody = table + "tbody "
+        thead = table + "> thead "
+        tbody = table + "> tbody "
 
         empty_content = r'"\00a0\00a0\00a0"'  # will be doubled
 
@@ -200,10 +200,10 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
             (tbody + "tr td:empty::before", {"content": empty_content, "visibility": "hidden"}),  # fill empty cells
             (tbody + "tr td:empty::after", {"content": empty_content, "visibility": "hidden"}),  # fill empty cells
             # ticks
-            (tbody + "tr:first-child td:first-of-type::before", {**left_ticks, "border-top": border}),
-            (tbody + "tr:last-child td:first-of-type::before", {**left_ticks, "border-bottom": border}),
-            (tbody + "tr:first-child td:last-of-type::after", {**right_ticks, "border-top": border}),
-            (tbody + "tr:last-child td:last-of-type::after", {**right_ticks, "border-bottom": border}),
+            (tbody + "> tr:first-child > td:first-of-type::before", {**left_ticks, "border-top": border}),
+            (tbody + "> tr:last-child > td:first-of-type::before", {**left_ticks, "border-bottom": border}),
+            (tbody + "> tr:first-child > td:last-of-type::after", {**right_ticks, "border-top": border}),
+            (tbody + "> tr:last-child > td:last-of-type::after", {**right_ticks, "border-bottom": border}),
         ]:
             self.write(f"{tags} " + '{', indent=self.indent_width)
             for k, v in attributes.items():
