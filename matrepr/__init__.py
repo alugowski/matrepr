@@ -15,12 +15,12 @@ from .latex_formatter import LatexFormatter, python_scientific_to_latex_times10
 @dataclass
 class MatReprParams:
     max_rows: int = 11
-    """Maximum number of rows in HTML and Latex output."""
+    """Maximum number of rows in output."""
 
     max_cols: int = 15
-    """Maximum number of columns in HTML and Latex output."""
+    """Maximum number of columns in output."""
 
-    txt_width: int = None
+    width_str: int = None
     """
     Maximum width of text output.
      - If 0 then autodetect terminal size.
@@ -115,6 +115,8 @@ class MatReprParams:
 
         # validate
         ret._assert_one_of("cell_align", ['center', 'left', 'right'])
+        ret.max_rows = max(1, ret.max_rows)
+        ret.max_cols = max(1, ret.max_cols)
 
         # Apply some default rules
         if ret.title_latex is None:
@@ -123,15 +125,10 @@ class MatReprParams:
         if ret.floatfmt_latex is None:
             ret.floatfmt_latex = lambda f: python_scientific_to_latex_times10(ret.floatfmt(f))
 
-        # compute values
-        if ret.txt_width == 0:
-            txt_width, _ = get_terminal_size()
-            ret.txt_width = txt_width
-        elif kwargs.get("auto_txt_width", False) and "txt_width" not in kwargs and "max_cols" not in kwargs:
-            txt_width, _ = get_terminal_size(fallback=(0, 0))
-            if txt_width:
-                # in a terminal
-                ret.txt_width = txt_width
+        # compute automatic values
+        if ret.width_str == 0 or (ret.width_str is None and kwargs.get("auto_width_str", False)):
+            width_str, _ = get_terminal_size()
+            ret.width_str = width_str
 
         return ret
 
@@ -268,7 +265,7 @@ def mprint(mat: Any, **kwargs):
     :param mat: A supported matrix.
     :param kwargs: Any argument in :class:`MatReprParams`.
     """
-    print(to_str(mat, auto_txt_width=True, **kwargs))
+    print(to_str(mat, auto_width_str=True, **kwargs))
 
 
 def mdisplay(mat: Any, method="html", **kwargs):
@@ -279,14 +276,14 @@ def mdisplay(mat: Any, method="html", **kwargs):
     :param method: Style to use. One of :code:`"html"`, :code:`"latex"`, :code:`"str"`.
     :param kwargs: Any argument in :class:`MatReprParams`.
     """
-    from IPython.display import display, HTML, Latex, display_pretty
+    from IPython.display import display, HTML, Latex, Pretty
 
     if method == "html":
         display(HTML(to_html(mat, notebook=True, **kwargs)))
     elif method == "latex":
         display(Latex('$' + to_latex(mat, **kwargs) + '$'))
     elif method == "str":
-        display_pretty(to_str(mat, auto_txt_width=True, **kwargs), raw=True)
+        display(Pretty(to_str(mat, auto_width_str=True, **kwargs)))
     else:
         raise ValueError("Unknown method: " + method)
 

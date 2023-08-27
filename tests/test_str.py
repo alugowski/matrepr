@@ -48,19 +48,23 @@ class ToHTMLTests(unittest.TestCase):
     def test_width(self):
         mat = generate_fixed_value(9, 9)
 
-        res = to_str(mat, max_rows=20, txt_width=100, title=False, indices=False)
+        res = to_str(mat, max_cols=20, width_str=100, title=False, indices=False)
         self.assertLessEqual(max_line_width(res), 100)
 
-        res = to_str(mat, max_rows=20, txt_width=30, title=False, indices=False)
+        res = to_str(mat, max_cols=20, width_str=30, title=False, indices=False)
         self.assertLessEqual(max_line_width(res), 30)
 
-        res = to_str(mat, max_rows=20, txt_width=15, title=False, indices=True)
+        res = to_str(mat, max_cols=20, width_str=15, title=False, indices=True)
         self.assertLessEqual(max_line_width(res), 15)
 
+        # test limit by max_cols
+        res = to_str(mat, max_cols=2, width_str=200, title=False, indices=False)
+        self.assertLessEqual(max_line_width(res), 20)
+
         # no crash test
-        to_str(mat, max_rows=20, txt_width=1, title=False, indices=True)
-        to_str(mat, max_rows=20, txt_width=0, title=False, indices=True)
-        to_str(mat, max_rows=20, txt_width=-1, title=False, indices=True)
+        to_str(mat, max_cols=20, width_str=1, title=False, indices=True)
+        to_str(mat, max_cols=20, width_str=0, title=False, indices=True)
+        to_str(mat, max_cols=20, width_str=-1, title=False, indices=True)
 
     def test_title(self):
         mat = generate_fixed_value(4, 4)

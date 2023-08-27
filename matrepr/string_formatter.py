@@ -188,15 +188,16 @@ def to_tabulate(mat: Any, **kwargs) -> str:
     options = params.get(**kwargs)
     adapter = _get_adapter(mat)
 
-    if options.txt_width:
-        cols = max(1, int(options.txt_width / 3))  # minimum 3 chars per column (if empty)
+    if options.width_str:
+        txt_max_cols = max(1, int(options.width_str / 3))  # minimum 3 chars per column (if empty)
+        cols = min(options.max_cols, txt_max_cols)
         trunc = to_trunc(adapter, options.max_rows, cols, options.num_after_dots)
 
         args, patch_tf = _to_tabulate_args(trunc, **kwargs)
         ret = tabulate(**args)
         ret_width = max_line_width(ret)
 
-        while ret_width > options.txt_width and cols > 1:
+        while ret_width > options.width_str and cols > 1:
             # too wide
             cols = trunc.drop_column()
             args, patch_tf = _to_tabulate_args(trunc, **kwargs)
