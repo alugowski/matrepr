@@ -23,6 +23,13 @@ unicode_to_fixed_width = {
 }
 
 
+def _single_line(s: str) -> str:
+    lines = s.split("\n")
+    for i, line in enumerate(lines):
+        lines[i] = line.strip()
+    return " ".join(lines)
+
+
 class ListConverter:
     def __init__(self, max_rows, max_cols, num_after_dots, floatfmt, **_):
         super().__init__()
@@ -51,9 +58,10 @@ class ListConverter:
                 if isinstance(py, (int, float, complex, bool, str, bytes)):
                     obj = py  # fall through for possible further rendering
                 else:
-                    return repr(obj)
+                    return _single_line(repr(obj))
             else:
-                return str(obj)
+                # do not fall through to the regular numpy driver below because of missing multiline support in tabular.
+                return _single_line(str(obj))
 
         if isinstance(obj, complex):
             sign = "-" if obj.imag < 0 else "+"

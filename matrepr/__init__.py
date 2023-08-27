@@ -168,6 +168,9 @@ def _register_bundled():
     from .adapters.graphblas_driver import GraphBLASDriver
     register_driver(GraphBLASDriver)
 
+    from .adapters.numpy_driver import NumpyDriver
+    register_driver(NumpyDriver)
+
 
 _register_bundled()
 

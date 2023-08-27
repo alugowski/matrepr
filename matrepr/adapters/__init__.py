@@ -17,7 +17,7 @@ def describe(shape: tuple = None, nnz: int = None, nz_type=None, notes: str = No
     elif len(shape) == 2:
         parts.append(f"{shape[0]}{by}{shape[1]}")
     else:
-        parts.append(f"shape={by.join(shape)}")
+        parts.append(f"shape=({','.join(str(d) for d in shape)})")
 
     if nnz is not None:
         dtype_str = f" '{str(nz_type)}'" if nz_type else ""
@@ -307,6 +307,12 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
         max_cols = min(max_cols, ncols)
     else:
         raise ValueError("Only 1 or 2 dimensional matrices supported at this time.")
+
+    if nrows == 0 or ncols == 0:
+        return Truncated2DMatrix(orig_shape=mat.get_shape(),
+                                 display_shape=(max_rows, max_cols),
+                                 num_after_dots=0,
+                                 description=mat.describe())
 
     if isinstance(mat, MatrixAdapterCoo):
         if max_rows >= nrows and max_cols >= ncols:

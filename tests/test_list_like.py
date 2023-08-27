@@ -39,10 +39,9 @@ class ListLikeTests(unittest.TestCase):
             np_a = np.array([(False, 2)], dtype=dtype_a)[0]
             dtype_b = np.dtype("(3,)uint16")
             np_b = np.array([(1, 2, 3)], dtype=dtype_b)[0]
+            np_2d = np.array([[11, 22], [33, 44]])
         except ImportError:
-            sps_mat = None
-            np_a = None
-            np_b = None
+            sps_mat = np_a = np_b = np_2d = None
 
         list_mat = [
             (0, 12e34, 1e-6, None, 123456789),
@@ -50,9 +49,8 @@ class ListLikeTests(unittest.TestCase):
             [complex(1, 2), complex(123456, 0.123456)],
             [[1], sps_mat, [2.1, 2.2], [[1.1, 2.2], [3.3, 4.4]]],
             ["multiline\nstring", "<escape!>", "\\begin{escape!}", {"a Python set"}],
-            [np_a, np_b]
+            [np_a, np_b, np_2d]
         ]
-
         res = to_html(list_mat, notebook=True, title=True)
         self.assertGreater(len(res), 10)
 
