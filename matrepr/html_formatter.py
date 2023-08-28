@@ -149,7 +149,7 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
         super().__init__(**kwargs)
         self.wrote_style = False
 
-    def _write_style(self):
+    def _write_style(self, matrix_class: str, tensor_class: str):
         self.wrote_style = True
 
         self.write("<style scoped>")
@@ -181,10 +181,13 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
             "right": 0,
         }
 
-        self.table_attributes["class"] = "matrepr"
-        table = "table.matrepr "
+        table = f"table.{matrix_class} "
         thead = table + "> thead "
         tbody = table + "> tbody "
+
+        tensor = f"table.{tensor_class} "
+        tenhead = tensor + "> thead "
+        tenbody = tensor + "> tbody "
 
         empty_content = r'"\00a0\00a0\00a0"'  # will be doubled
 
@@ -204,6 +207,12 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
             (tbody + "> tr:last-child > td:first-of-type::before", {**left_ticks, "border-bottom": border}),
             (tbody + "> tr:first-child > td:last-of-type::after", {**right_ticks, "border-top": border}),
             (tbody + "> tr:last-child > td:last-of-type::after", {**right_ticks, "border-bottom": border}),
+
+            # tensor styles
+            (tenbody + "tr th", {**index_attributes, "text-align": "right"}),  # row indices
+            (tenhead + "tr th", {**index_attributes, "text-align": "center"}),  # column indices
+            (tenbody + "tr td", {"vertical-align": "middle", "text-align": self.cell_align, "position": "relative"}),
+            (tenbody + "tr th:last-of-type", {"border-right": border}),  # left border
         ]:
             self.write(f"{tags} " + '{', indent=self.indent_width)
             for k, v in attributes.items():
@@ -212,10 +221,15 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
         self.write("</style>")
 
     def format(self, mat: MatrixAdapter, indent: int = 0):
+        matrix_class = "matreprmatrix"
+        tensor_class = "matreprtensor"
+        table_class = tensor_class if mat.is_tensor() else matrix_class
+        self.table_attributes["class"] = table_class
+
         write_div = not self.wrote_style
         if write_div:
             self.write("<div>")
-            self._write_style()
+            self._write_style(matrix_class=matrix_class, tensor_class=tensor_class)
         self.center_header = True
         super().format(mat, indent=indent)
         if write_div:

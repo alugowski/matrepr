@@ -6,10 +6,11 @@
 
 Sparse matrix string, HTML, and LaTeX representation with Jupyter integration. 
 
-* SciPy sparse matrices and arrays like `csr_matrix` and `coo_array`
-* [Python-graphblas](https://github.com/python-graphblas/python-graphblas) `Matrix` and `Vector`
-* NumPy `ndarray`
-* `list`, `tuple`, including multi-dimensional and jagged
+* SciPy sparse matrices and arrays like `csr_matrix` and `coo_array`.
+* [Python-graphblas](https://github.com/python-graphblas/python-graphblas) `gb.Matrix` and `gb.Vector`. [See demo.](doc/demo-python-graphblas.ipynb)
+* [PyData/Sparse](https://sparse.pydata.org/) `COO`, `DOK`, `GCXS`. [See demo.](doc/demo-pydata-sparse.ipynb)
+* NumPy `ndarray`.
+* `list`, `tuple`, including multi-dimensional and jagged.
 
 ```shell
 pip install matrepr
@@ -102,6 +103,7 @@ This is implemented in the [matrepr.patch](matrepr/patch) module. Simply import 
 
 * `import matrepr.patch.scipy`
 * `import matrepr.patch.graphblas`
+* `import matrepr.patch.sparse`
 
 Example:
 

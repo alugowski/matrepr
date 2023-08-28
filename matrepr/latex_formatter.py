@@ -49,7 +49,7 @@ unicode_to_latex = {
 
 
 class LatexFormatter(BaseFormatter):
-    def __init__(self, max_rows, max_cols, num_after_dots, title_latex, latex_matrix_env,
+    def __init__(self, max_rows, max_cols, num_after_dots, title_latex, latex_matrix_env, latex_tensor_env,
                  floatfmt_latex=None, latex_dupe_matrix_env="Bmatrix", **_):
         super().__init__()
         self.max_rows = max_rows
@@ -57,6 +57,7 @@ class LatexFormatter(BaseFormatter):
         self.num_after_dots = num_after_dots
         self.title = title_latex
         self.latex_matrix_env = latex_matrix_env
+        self.latex_tensor_env = latex_tensor_env
         self.dupe_env = latex_dupe_matrix_env
         self.floatfmt = floatfmt_latex
         if not self.floatfmt:
@@ -88,7 +89,9 @@ class LatexFormatter(BaseFormatter):
 
         if isinstance(obj, DupeList):
             fmt = LatexFormatter(max_rows=len(obj), max_cols=1, num_after_dots=0, title_latex=None,
-                                 latex_matrix_env=dupe_list_env, latex_dupe_matrix_env=self.dupe_env,
+                                 latex_matrix_env=dupe_list_env,
+                                 latex_dupe_matrix_env=self.dupe_env,
+                                 latex_tensor_env=self.latex_tensor_env,
                                  floatfmt_latex=self.floatfmt)
             from .adapters.list_like import List1DColumnAdapter
             return str(fmt.format(List1DColumnAdapter(obj)))
@@ -100,18 +103,19 @@ class LatexFormatter(BaseFormatter):
                                  max_cols=max(self.max_cols / 2, 2),
                                  num_after_dots=0, title_latex=None,
                                  latex_matrix_env=self.latex_matrix_env,
+                                 latex_tensor_env=self.latex_tensor_env,
                                  latex_dupe_matrix_env=self.dupe_env,
                                  floatfmt_latex=self.floatfmt)
             return str(fmt.format(adapter))
 
         return "\\textrm{" + tex_escape(str(obj)) + "}"
 
-    def _write_matrix(self, mat: MatrixAdapterRow, indent: int = 0):
+    def _write_matrix(self, mat: MatrixAdapterRow, matrix_env, indent: int = 0):
         if isinstance(mat, Truncated2DMatrix):
             mat.apply_dots(unicode_dots)
 
         nrows, ncols = mat.get_shape()
-        self.write("\\begin{" + self.latex_matrix_env + "}", indent=indent)
+        self.write("\\begin{" + matrix_env + "}", indent=indent)
 
         body_indent = indent + self.indent_width
 
@@ -132,12 +136,14 @@ class LatexFormatter(BaseFormatter):
 
             self.write(" ".join(row_contents), body_indent)
 
-        self.write("\\end{" + self.latex_matrix_env + "}", indent=indent)
+        self.write("\\end{" + matrix_env + "}", indent=indent)
 
     def format(self, mat: MatrixAdapter):
         if self.title:
             title = mat.describe() if self.title is True else self.title
             self.write("\\stackrel{\\textrm{" + tex_escape(title) + "}}{")
+
+        matrix_env = self.latex_tensor_env if mat.is_tensor() else self.latex_matrix_env
 
         if not isinstance(mat, MatrixAdapterRow) or \
                 len(mat.get_shape()) != 2 or \
@@ -145,7 +151,7 @@ class LatexFormatter(BaseFormatter):
                 mat.get_shape()[1] > self.max_cols:
             mat = to_trunc(mat, self.max_rows, self.max_cols, self.num_after_dots)
 
-        self._write_matrix(mat)
+        self._write_matrix(mat, matrix_env)
 
         if self.title:
             self.write("}")
