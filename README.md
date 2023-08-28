@@ -4,7 +4,13 @@
 
 # MatRepr
 
-Sparse matrix string, HTML, and LaTeX representation with Jupyter integration. 
+```shell
+pip install matrepr
+```
+
+Sparse matrix string, HTML, and LaTeX representation with Jupyter integration.
+
+Supports:
 
 * **SciPy** - sparse matrices and arrays like `csr_matrix` and `coo_array`
 * **[Python-graphblas](https://github.com/python-graphblas/python-graphblas)** - `gb.Matrix` and `gb.Vector` [(demo)](doc/demo-python-graphblas.ipynb)
@@ -12,15 +18,7 @@ Sparse matrix string, HTML, and LaTeX representation with Jupyter integration.
 * **NumPy** - `ndarray`
 * `list`, `tuple`, including multi-dimensional and jagged
 
-```shell
-pip install matrepr
-```
-
-For Spy plots see [MatSpy](https://github.com/alugowski/matspy).
-
-## Purpose
-
-Turn this opaque string:
+Use MatRepr to turn this opaque string:
 ```
 <1000x1000 sparse matrix of type '<class 'numpy.float64'>'
 	with 212345 stored elements in COOrdinate format>
@@ -59,6 +57,7 @@ To one of these:
 
 `mdisplay(A, 'latex')`, or simply `A` if LaTeX version of Jupyter integration enabled. Use `to_latex()` for raw LaTeX string.
 
+**Note:** For Spy plots see [MatSpy](https://github.com/alugowski/matspy).
 
 ## Quick Start
 
@@ -70,6 +69,7 @@ pip install matrepr
 from matrepr import mdisplay
 ```
 
+Methods:
 * `to_str(A)`: Format `A` as string.
 * `to_html(A)`: Format `A` as an HTML table. Returns a string.
 * `to_latex(A)`: Format `A` as a LaTeX matrix. Returns a string.
@@ -79,7 +79,7 @@ from matrepr import mdisplay
 ## Jupyter Integration
 
 MatRepr can integrate with [Jupyter's formatter](https://ipython.readthedocs.io/en/stable/config/integrating.html)
-to automatically format supported sparse matrix types. Simply import `matrepr.jupyter` to register MatRepr's formatter
+to format SciPy, GraphBLAS, and PyData/Sparse with MatRepr. Simply import `matrepr.jupyter` to register MatRepr's formatter
 with Jupyter.
 
 ```python
@@ -93,9 +93,9 @@ If you prefer LaTeX:
 import matrepr.jupyter_latex
 ```
 
-## Monkey Patching `__repr__`
+## Interactive Python: Monkey Patching `__repr__`
 
-Unlike Jupyter, the Python REPL does not have a nice way to register a formatter.
+Unlike Jupyter, the interactive Python REPL does not have a nice way to register a formatter.
 
 We can monkey patch a `__repl__` method into supported matrix classes for a similar effect.
 
