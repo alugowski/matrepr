@@ -57,6 +57,12 @@ class MatReprParams:
     latex_matrix_env: str = "bmatrix"
     """Latex environment to use for matrices. For Jupyter this should be one supported by MathJax."""
 
+    latex_tensor_env: str = "matrix"
+    """
+    Latex environment to use for tensors rendered as a 2D matrix.
+    For Jupyter this should be one supported by MathJax.
+    """
+
     latex_dupe_matrix_env: str = "Bmatrix"
     """Latex environment to use when a cell has multiple elements."""
 
@@ -162,14 +168,17 @@ def _register_bundled():
     from .adapters.scipy_driver import SciPyDriver
     register_driver(SciPyDriver)
 
-    from .adapters.list_like import ListDriver
-    register_driver(ListDriver)
-
     from .adapters.graphblas_driver import GraphBLASDriver
     register_driver(GraphBLASDriver)
 
+    from .adapters.sparse_driver import PyDataSparseDriver
+    register_driver(PyDataSparseDriver)
+
     from .adapters.numpy_driver import NumpyDriver
     register_driver(NumpyDriver)
+
+    from .adapters.list_like import ListDriver
+    register_driver(ListDriver)
 
 
 _register_bundled()
