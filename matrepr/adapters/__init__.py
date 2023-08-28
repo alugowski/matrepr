@@ -242,26 +242,28 @@ class Truncated2DMatrix(MatrixAdapterRow):
             return None
 
         if self.dot_row is None:
-            return self.orig_row_labels if self.orig_row_labels else list(range(self.orig_shape[0]))
+            return self.orig_row_labels if self.orig_row_labels else [str(i) for i in range(self.orig_shape[0])]
         else:
             pre_dot_end, post_dot_start = self.get_dot_indices_row()
             if self.orig_row_labels is None:
                 # generate indices
                 # noinspection PyTypeChecker
-                return list(range(pre_dot_end)) + [None] + list(range(post_dot_start, self.orig_shape[0]))
+                return [str(i) for i in range(pre_dot_end)] + [None]\
+                    + [str(i) for i in range(post_dot_start, self.orig_shape[0])]
             else:
                 return self.orig_row_labels[:pre_dot_end] + [None] \
                     + self.orig_row_labels[post_dot_start:self.orig_shape[0]]
 
     def get_col_labels(self) -> Iterable[Optional[int]]:
         if self.dot_col is None:
-            return self.orig_col_labels if self.orig_col_labels else list(range(self.orig_shape[1]))
+            return self.orig_col_labels if self.orig_col_labels else [str(i) for i in range(self.orig_shape[1])]
         else:
             pre_dot_end, post_dot_start = self.get_dot_indices_col()
             if self.orig_col_labels is None:
                 # generate indices
                 # noinspection PyTypeChecker
-                return list(range(pre_dot_end)) + [None] + list(range(post_dot_start, self.orig_shape[1]))
+                return [str(i) for i in range(pre_dot_end)] + [None]\
+                    + [str(i) for i in range(post_dot_start, self.orig_shape[1])]
             else:
                 return self.orig_col_labels[:pre_dot_end] + [None] \
                     + self.orig_col_labels[post_dot_start:self.orig_shape[1]]
