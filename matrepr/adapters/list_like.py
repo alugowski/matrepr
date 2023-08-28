@@ -7,7 +7,10 @@ from . import describe, Driver, MatrixAdapterRow, MatrixAdapterCol
 
 
 def is_single(x):
-    return not hasattr(x, '__len__') or isinstance(x, str)
+    return (not hasattr(x, '__len__') or isinstance(x, str))\
+        or type(x).__module__.startswith("scipy")\
+        or type(x).__module__.startswith("sparse")\
+        or type(x).__name__ == "Matrix"
 
 
 def count_none(iterable):
