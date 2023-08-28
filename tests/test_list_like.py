@@ -73,6 +73,21 @@ class ListLikeTests(unittest.TestCase):
 
             self.assertGreater(len(res), 10)
 
+    def test_no_crash_edge_cases_2(self):
+        try:
+            import scipy.sparse
+            import numpy as np
+
+            mat = [
+                scipy.sparse.random(3, 3, density=0.6),
+                np.array([[1, 2], [3, 4]])
+            ]
+
+            res = to_html(mat)
+            self.assertGreater(len(res), 10)
+        except ImportError:
+            pass
+
     def test_shape(self):
         mat = (1, 2, 3, 4)
         adapter = matrepr._get_adapter(mat, None)
