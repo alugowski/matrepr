@@ -4,6 +4,7 @@
 
 from typing import Any, Iterable, Tuple
 
+import sparse
 from sparse import COO
 
 from . import describe, MatrixAdapterRow, MatrixAdapterCoo, TensorAdapterCooRow
@@ -69,7 +70,7 @@ class PyDataSparse2DAdapter(PyDataSparseBase, MatrixAdapterCoo):
 class PyDataSparseNDAdapter(PyDataSparseBase, TensorAdapterCooRow):
     def __init__(self, mat):
         super().__init__(mat)
-        self.coo = COO(mat)
+        self.coo = sparse.as_coo(mat)
 
     def get_shape(self) -> tuple:
         return self.mat.nnz, self.mat.ndim+1
