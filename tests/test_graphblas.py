@@ -38,7 +38,7 @@ class GraphBLASMatrixTests(unittest.TestCase):
 
     def test_shape(self):
         mat = gb.Matrix.from_coo([0, 1, 2, 3, 4], [0, 0, 0, 0, 0], [0, 1, 2, 3, 4], nrows=5, ncols=1)
-        adapter = matrepr._get_adapter(mat)
+        adapter = matrepr._get_adapter(mat, None)
         self.assertEqual((5, 1), adapter.get_shape())
 
     def test_contents(self):
@@ -82,7 +82,7 @@ class GraphBLASVectorTests(unittest.TestCase):
 
     def test_shape(self):
         vec = gb.Vector.from_coo([0, 3, 4, 6], [12.1, -5.4, 2.9, 2.2], size=8)
-        adapter = matrepr._get_adapter(vec)
+        adapter = matrepr._get_adapter(vec, None)
         self.assertEqual((8,), adapter.get_shape())
 
     def test_contents(self):

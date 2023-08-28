@@ -97,7 +97,7 @@ class LatexFormatter(BaseFormatter):
             return str(fmt.format(List1DColumnAdapter(obj)))
 
         from . import _get_adapter
-        adapter = _get_adapter(obj, unsupported_raise=False)
+        adapter = _get_adapter(obj, None, unsupported_raise=False)
         if adapter:
             fmt = LatexFormatter(max_rows=max(self.max_rows / 2, 2),
                                  max_cols=max(self.max_cols / 2, 2),

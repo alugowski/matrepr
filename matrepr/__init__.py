@@ -5,7 +5,7 @@
 import dataclasses
 from dataclasses import dataclass, asdict
 from shutil import get_terminal_size
-from typing import Any, Type, Callable, Dict, List, Union
+from typing import Any, Type, Callable, Dict, List, Union, Iterable, Optional
 
 from .adapters import Driver, MatrixAdapter
 from .html_formatter import HTMLTableFormatter, NotebookHTMLFormatter
@@ -85,6 +85,12 @@ class MatReprParams:
     Overwrites `floatfmt` for LaTeX output. If None then uses `floatfmt` but converts scientific
     notation: :raw:`1e22` becomes :raw:`1 \\times 10^{22}`
     """
+
+    row_labels: Iterable[str] = None
+    """Labels for matrix rows. If None then use row index."""
+
+    col_labels: Iterable[str] = None
+    """Labels for matrix columns. If None then use column index."""
 
     def set_precision(self, precision, g=True):
         """
@@ -193,14 +199,19 @@ def _get_driver(mat, unsupported_raise=True):
     return driver
 
 
-def _get_adapter(mat, unsupported_raise=True) -> MatrixAdapter:
+def _get_adapter(mat: Any, options: Optional[MatReprParams], unsupported_raise=True) -> MatrixAdapter:
     if isinstance(mat, MatrixAdapter):
-        return mat
-    driver = _get_driver(mat, unsupported_raise=unsupported_raise)
-    adapter = driver.adapt(mat) if driver else None
-    if not adapter and unsupported_raise:
-        raise AttributeError("Unsupported matrix")
+        adapter = mat
+    else:
+        driver = _get_driver(mat, unsupported_raise=unsupported_raise)
+        adapter = driver.adapt(mat) if driver else None
+        if not adapter and unsupported_raise:
+            raise AttributeError("Unsupported matrix")
 
+    if options and options.row_labels:
+        adapter.row_labels = options.row_labels
+    if options and options.col_labels:
+        adapter.col_labels = options.col_labels
     return adapter
 
 
@@ -215,7 +226,7 @@ def to_html(mat: Any, notebook=False, **kwargs) -> str:
     :return: A string containing an HTML representation of `mat`.
     """
     options = params.get(**kwargs)
-    adapter = _get_adapter(mat)
+    adapter = _get_adapter(mat, options)
 
     if notebook:
         formatter = NotebookHTMLFormatter(**options.to_kwargs())
@@ -235,7 +246,7 @@ def to_latex(mat: Any, **kwargs):
     :return: A string containing a LaTeX representation of `mat`.
     """
     options = params.get(**kwargs)
-    adapter = _get_adapter(mat)
+    adapter = _get_adapter(mat, options)
 
     formatter = LatexFormatter(**options.to_kwargs())
 
@@ -258,7 +269,7 @@ def to_str(mat: Any, **kwargs) -> str:
 
     if options.title:
         if options.title is True:
-            adapter = _get_adapter(mat)
+            adapter = _get_adapter(mat, None)
             title = adapter.describe()
         else:
             title = options.title

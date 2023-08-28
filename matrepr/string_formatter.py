@@ -155,8 +155,8 @@ def _to_tabulate_args(mat: Any, is_tensor=False, **kwargs) -> Tuple[Dict, Option
     :return: the argument dictionary and an object. If the object is not None then :func:`_tabulate_sep_to_border`
              must be called with the tabulate output and this object.
     """
-    adapter = _get_adapter(mat)
     options = params.get(**kwargs)
+    adapter = _get_adapter(mat, options)
 
     # collect the data
     conv = ListConverter(**options.to_kwargs())
@@ -225,7 +225,7 @@ def to_tabulate(mat: Any, **kwargs) -> str:
     :return: output of :func:`~tabulate.tabulate`
     """
     options = params.get(**kwargs)
-    adapter = _get_adapter(mat)
+    adapter = _get_adapter(mat, options)
 
     if options.width_str:
         txt_max_cols = max(1, int(options.width_str / 3))  # minimum 3 chars per column (if empty)

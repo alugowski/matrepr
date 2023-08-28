@@ -47,7 +47,7 @@ class BasicTests(unittest.TestCase):
 
     def test_adaptation_errors(self):
         with self.assertRaises(AttributeError):
-            matrepr._get_adapter(set())
+            matrepr._get_adapter(set(), None)
 
     def test_arguments(self):
         mat = [[1, 2], [1003, 1004]]
