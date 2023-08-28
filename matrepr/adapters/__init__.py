@@ -372,7 +372,7 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
         top_left = list(mat.get_coo(row_range=(0, max_rows), col_range=(0, max_cols)))
         duration = time.time() - begin
 
-        if duration > 0.025:
+        if duration > 0.1:
             # slow to get data, only show the top-left
             num_after_dots = 0
 
