@@ -4,7 +4,7 @@
 
 from typing import Any, Iterable, Tuple
 
-from sparse import COO, DOK, GCXS
+from sparse import COO
 
 from . import describe, MatrixAdapterRow, MatrixAdapterCoo, TensorAdapterCooRow
 
@@ -78,3 +78,10 @@ class PyDataSparseNDAdapter(PyDataSparseBase, TensorAdapterCooRow):
         ret = self.coo.coords[:, row_idx]
         ret = list(ret) + [self.coo.data[row_idx]]
         return ret[slice(*col_range)]
+
+
+def _warmup_indexing():
+    _ = COO(coords=[[0, 1], [2, 3]], data=[111, 222], shape=(5, 5))[:1]
+
+
+_warmup_indexing()
