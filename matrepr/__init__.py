@@ -160,8 +160,8 @@ _driver_registration_notify: List[Callable[[Type[Driver]], None]] = []
 def register_driver(driver: Type[Driver]):
     _drivers.append(driver)
 
-    for type_module, type_name, _ in driver.get_supported_types():
-        _driver_map[".".join((type_module, type_name))] = driver
+    for type_str, _ in driver.get_supported_types():
+        _driver_map[type_str] = driver
 
     for func in _driver_registration_notify:
         func(driver)
@@ -311,7 +311,7 @@ def mdisplay(mat: Any, method="html", **kwargs):
         raise ValueError("Unknown method: " + method)
 
 
-def _register_jupyter_formatter(mime_type: str, repr_method: Callable):
+def _register_jupyter_formatter(mime_type: str, repr_method: Optional[Callable]):
     """
     See https://ipython.readthedocs.io/en/stable/config/integrating.html
     """
@@ -330,9 +330,12 @@ def _register_jupyter_formatter(mime_type: str, repr_method: Callable):
         return
 
     for driver in _drivers:
-        for type_module, type_name, register_with_jupyter in driver.get_supported_types():
+        for type_str, register_with_jupyter in driver.get_supported_types():
             if register_with_jupyter:
-                formatter.for_type_by_name(type_module, type_name, repr_method)
+                if repr_method:
+                    formatter.for_type(type_str, repr_method)
+                else:
+                    formatter.pop(type_str)
 
 
 __all__ = ["to_html", "to_latex", "to_str", "mprint", "mdisplay"]

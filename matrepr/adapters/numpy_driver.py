@@ -9,9 +9,9 @@ from . import Driver
 
 class NumpyDriver(Driver):
     @staticmethod
-    def get_supported_types() -> Iterable[Tuple[str, str, bool]]:
+    def get_supported_types() -> Iterable[Tuple[str, bool]]:
         return [
-            ("numpy", "ndarray", False),
+            ("numpy.ndarray", False),
         ]
 
     @staticmethod

@@ -9,12 +9,12 @@ from . import Driver
 
 class GraphBLASDriver(Driver):
     @staticmethod
-    def get_supported_types() -> Iterable[Tuple[str, str, bool]]:
+    def get_supported_types() -> Iterable[Tuple[str, bool]]:
         return [
-            ("graphblas", "Matrix", True),
-            ("graphblas.core.matrix", "Matrix", True),
-            ("graphblas", "Vector", True),
-            ("graphblas.core.vector", "Vector", True),
+            ("graphblas.Matrix", True),
+            ("graphblas.core.matrix.Matrix", True),
+            ("graphblas.Vector", True),
+            ("graphblas.core.vector.Vector", True),
         ]
 
     @staticmethod

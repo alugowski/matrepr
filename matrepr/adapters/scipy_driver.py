@@ -9,17 +9,17 @@ from . import Driver
 
 class SciPyDriver(Driver):
     @staticmethod
-    def get_supported_types() -> Iterable[Tuple[str, str, bool]]:
+    def get_supported_types() -> Iterable[Tuple[str, bool]]:
         formats = ("coo", "csr", "csc", "lil", "dok", "dia", "bsr")
         ret = []
         for mod in ("scipy.sparse", "scipy.sparse._arrays"):
             for arr_mat in ("array", "matrix"):
                 for fmt in formats:
-                    ret.append((mod, f"{fmt}_{arr_mat}", True))
+                    ret.append((f"{mod}.{fmt}_{arr_mat}", True))
         for fmt in formats:
             for arr_mat in ("array", "matrix"):
-                ret.append((f"scipy.sparse._{fmt}", f"{fmt}_{arr_mat}", True))
-            ret.append((f"scipy.sparse.{fmt}", f"{fmt}_matrix", True))
+                ret.append((f"scipy.sparse._{fmt}.{fmt}_{arr_mat}", True))
+            ret.append((f"scipy.sparse.{fmt}.{fmt}_matrix", True))
         return ret
 
     @staticmethod

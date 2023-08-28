@@ -9,18 +9,18 @@ from . import Driver
 
 class PyDataSparseDriver(Driver):
     @staticmethod
-    def get_supported_types() -> Iterable[Tuple[str, str, bool]]:
+    def get_supported_types() -> Iterable[Tuple[str, bool]]:
         return [
-            ("sparse", "COO", True),
-            ("sparse._coo.core", "COO", True),
-            ("sparse", "DOK", True),
-            ("sparse._dok", "DOK", True),
-            ("sparse", "GCXS", True),
-            ("sparse._compressed.compressed", "GCXS", True),
-            ("sparse", "CSR", True),
-            ("sparse._compressed.compressed", "CSR", True),
-            ("sparse", "CSC", True),
-            ("sparse._compressed.compressed", "CSC", True),
+            ("sparse.COO", True),
+            ("sparse._coo.core.COO", True),
+            ("sparse.DOK", True),
+            ("sparse._dok.DOK", True),
+            ("sparse.GCXS", True),
+            ("sparse._compressed.compressed.GCXS", True),
+            ("sparse.CSR", True),
+            ("sparse._compressed.compressed.CSR", True),
+            ("sparse.CSC", True),
+            ("sparse._compressed.compressed.CSC", True),
         ]
 
     @staticmethod
