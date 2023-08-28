@@ -115,6 +115,8 @@ class PyDataSparseTests(unittest.TestCase):
         for value in values:
             self.assertIn(f"<td>{value}</td>", res)
             self.assertIn(f"{value}", res_str)
+        self.assertIn(f"<th>val</th>", res)
+        self.assertIn(f"val", res_str)
 
     def test_truncate_3d(self):
         values = [111, 222]
@@ -130,6 +132,9 @@ class PyDataSparseTests(unittest.TestCase):
                 count_str += 1
         self.assertEqual(len(values), count)
         self.assertEqual(len(values), count_str)
+
+        self.assertIn(f"<th>val</th>", res)
+        self.assertIn(f"val", res_str)
 
     def test_patch_sparse(self):
         source_mat = sparse.COO(coords=[1, 4, 6], data=[11, 44, 222], shape=(10,))

@@ -51,29 +51,35 @@ class ListLikeTests(unittest.TestCase):
             ["multiline\nstring", "<escape!>", "\\begin{escape!}", {"a Python set"}],
             [np_a, np_b, np_2d]
         ]
-        res = to_html(list_mat, notebook=True, title=True)
-        self.assertGreater(len(res), 10)
 
-        res = to_latex(list_mat, title=True)
-        self.assertGreater(len(res), 10)
+        row_labels = ["scientific", "singleton", "complex", "nested", "strings", "numpy"]
+        col_labels = ["one", "two", "three", "four", "five"]
 
-        # tabulate SEPARATING_LINE detection will compare an element to a string. If that element happens to be a
-        # numpy array, numpy issues this warning. It's a ValueError in future versions.
-        # Ensure it's not thrown.
-        import warnings
-        with warnings.catch_warnings():
-            warnings.filterwarnings(action='error', category=FutureWarning)
+        for max_cols in [3, 99]:
+            res = to_html(list_mat, title=True, max_cols=max_cols, row_labels=row_labels, col_labels=col_labels)
+            self.assertGreater(len(res), 10)
 
-            res = to_str(list_mat, title=True)
-        self.assertGreater(len(res), 10)
+            res = to_latex(list_mat, title=True, max_cols=max_cols, row_labels=row_labels, col_labels=col_labels)
+            self.assertGreater(len(res), 10)
+
+            # tabulate SEPARATING_LINE detection will compare an element to a string. If that element happens to be a
+            # numpy array, numpy issues this warning. It's a ValueError in future versions.
+            # Ensure it's not thrown.
+            import warnings
+            with warnings.catch_warnings():
+                warnings.filterwarnings(action='error', category=FutureWarning)
+
+                res = to_str(list_mat, title=True, max_cols=max_cols, row_labels=row_labels, col_labels=col_labels)
+
+            self.assertGreater(len(res), 10)
 
     def test_shape(self):
         mat = (1, 2, 3, 4)
-        adapter = matrepr._get_adapter(mat)
+        adapter = matrepr._get_adapter(mat, None)
         self.assertEqual((4,), adapter.get_shape())
 
         mat = [[1, 2], [1003, 1004, 1005]]
-        adapter = matrepr._get_adapter(mat)
+        adapter = matrepr._get_adapter(mat, None)
         self.assertEqual((2, 3), adapter.get_shape())
 
 

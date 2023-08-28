@@ -70,7 +70,7 @@ class HTMLTableFormatter(BaseFormatter):
             return "<br>".join(self.pprint(sub) for sub in obj)
 
         from . import _get_adapter
-        adapter = _get_adapter(obj, unsupported_raise=False)
+        adapter = _get_adapter(obj, None, unsupported_raise=False)
         if adapter:
             from copy import copy
             fmt = copy(self)
