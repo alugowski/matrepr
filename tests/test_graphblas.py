@@ -120,7 +120,7 @@ class PatchGraphBLASTests(unittest.TestCase):
     def test_type_registration(self):
         from matrepr.adapters.graphblas_driver import GraphBLASDriver
         reg_types = [
-            f"{mod}.{cls}" for mod, cls, _ in GraphBLASDriver.get_supported_types()
+            typ for typ, _ in GraphBLASDriver.get_supported_types()
         ]
 
         for tp in [gb.Matrix, gb.Vector]:

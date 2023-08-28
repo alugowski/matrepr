@@ -161,14 +161,14 @@ class TensorAdapterCooRow(MatrixAdapterRow):
 class Driver(ABC):
     @staticmethod
     @abstractmethod
-    def get_supported_types() -> Iterable[Tuple[str, str, bool]]:
+    def get_supported_types() -> Iterable[Tuple[str, bool]]:
         """
         Declares the types that this :class:`Driver` supports, and whether they should be registered with Jupyter.
 
         Does not import the modules that it supports.
 
-        :rtype: (str, str, bool)
-        :returns: An iterable of `(module_name_as_str, class_name_as_str, should_register_with_Jupyter_bool)` tuples.
+        :rtype: (str, bool)
+        :returns: An iterable of `(type_as_str, should_register_with_Jupyter_bool)` tuples.
         """
 
     @staticmethod

@@ -39,7 +39,7 @@ class PyDataSparseTests(unittest.TestCase):
     def test_type_registration(self):
         from matrepr.adapters.sparse_driver import PyDataSparseDriver
         reg_types = [
-            f"{mod}.{cls}" for mod, cls, _ in PyDataSparseDriver.get_supported_types()
+            typ for typ, _ in PyDataSparseDriver.get_supported_types()
         ]
 
         for tp in self.types:

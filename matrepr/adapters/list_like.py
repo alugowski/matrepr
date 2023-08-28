@@ -64,10 +64,10 @@ class List1DColumnAdapter(MatrixAdapterCol):
 
 class ListDriver(Driver):
     @staticmethod
-    def get_supported_types() -> Iterable[Tuple[str, str, bool]]:
+    def get_supported_types() -> Iterable[Tuple[str, bool]]:
         return [
-            ("builtins", "list", False),
-            ("builtins", "tuple", False),
+            ("builtins.list", False),
+            ("builtins.tuple", False),
         ]
 
     @staticmethod
