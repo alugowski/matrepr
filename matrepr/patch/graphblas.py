@@ -16,7 +16,8 @@ import graphblas
 
 def _str_(mat):
     from matrepr.adapters.graphblas_driver import GraphBLASDriver
-    return to_str(GraphBLASDriver.adapt(mat))
+    # Enable terminal width detection
+    return to_str(GraphBLASDriver.adapt(mat), width_str=0, max_cols=9999)
 
 
 graphblas.Matrix.__repr__ = _str_

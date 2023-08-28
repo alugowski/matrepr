@@ -15,7 +15,9 @@ import scipy.sparse
 
 
 def _str_(mat):
-    return to_str(mat)
+    from matrepr.adapters.scipy_driver import SciPyDriver
+    # Enable terminal width detection
+    return to_str(SciPyDriver.adapt(mat), width_str=0, max_cols=9999)
 
 
 try:

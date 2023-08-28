@@ -16,7 +16,8 @@ import sparse
 
 def _str_(mat):
     from matrepr.adapters.sparse_driver import PyDataSparseDriver
-    return to_str(PyDataSparseDriver.adapt(mat))
+    # Enable terminal width detection
+    return to_str(PyDataSparseDriver.adapt(mat), width_str=0, max_cols=9999)
 
 
 sparse.COO.__repr__ = _str_
