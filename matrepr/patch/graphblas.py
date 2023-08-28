@@ -15,7 +15,8 @@ import graphblas
 
 
 def _str_(mat):
-    return to_str(mat)
+    from matrepr.adapters.graphblas_driver import GraphBLASDriver
+    return to_str(GraphBLASDriver.adapt(mat))
 
 
 graphblas.Matrix.__repr__ = _str_

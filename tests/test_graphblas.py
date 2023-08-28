@@ -117,6 +117,15 @@ class PatchGraphBLASTests(unittest.TestCase):
         self.assertIn("222", res)
         self.assertIn("[", res)  # a character used by MatRepr
 
+    def test_type_registration(self):
+        from matrepr.adapters.graphblas_driver import GraphBLASDriver
+        reg_types = [
+            f"{mod}.{cls}" for mod, cls, _ in GraphBLASDriver.get_supported_types()
+        ]
+
+        for tp in [gb.Matrix, gb.Vector]:
+            self.assertIn(f"{tp.__module__}.{tp.__name__}", reg_types)
+
 
 if __name__ == '__main__':
     unittest.main()
