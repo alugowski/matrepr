@@ -20,13 +20,13 @@ numpy.random.seed(123)
 class PyDataSparseTests(unittest.TestCase):
     def setUp(self):
         self.mats = [
-            # sparse.COO([], shape=(0,)),
-            # sparse.COO(coords=[1, 4], data=[11, 44], shape=(10,)),
-            # sparse.COO([], shape=(0, 0)),
-            # sparse.COO([], shape=(10, 10)),
-            # sparse.random((10, 10), density=0.4),
-            # sparse.COO.from_scipy_sparse(generate_fixed_value(10, 10)),
-            # sparse.COO(coords=[[0, 0], [0, 0]], data=[111, 222], shape=(13, 13)),
+            sparse.COO([], shape=(0,)),
+            sparse.COO(coords=[1, 4], data=[11, 44], shape=(10,)),
+            sparse.COO([], shape=(0, 0)),
+            sparse.COO([], shape=(10, 10)),
+            sparse.random((10, 10), density=0.4),
+            sparse.COO.from_scipy_sparse(generate_fixed_value(10, 10)),
+            sparse.COO(coords=[[0, 0], [0, 0]], data=[111, 222], shape=(13, 13)),
             sparse.COO(coords=[[0, 1], [3, 2], [1, 3]], data=[111, 222], shape=(5, 5, 5)),
         ]
 
@@ -107,6 +107,30 @@ class PyDataSparseTests(unittest.TestCase):
                     count += 1
             self.assertEqual(expected_count, count)
 
+    def test_contents_3d(self):
+        values = [111, 222]
+        mat = sparse.COO(coords=[[0, 1], [3, 2], [1, 3]], data=values, shape=(5, 5, 5))
+        res = to_html(mat, notebook=False, max_rows=20, max_cols=20, title=True, indices=True)
+        res_str = to_str(mat)
+        for value in values:
+            self.assertIn(f"<td>{value}</td>", res)
+            self.assertIn(f"{value}", res_str)
+
+    def test_truncate_3d(self):
+        values = [111, 222]
+        mat = sparse.COO(coords=[[0, 1], [3, 2], [1, 3]], data=values, shape=(5, 5, 5))
+
+        res = to_html(mat, notebook=False, max_rows=30, max_cols=3, num_after_dots=1)
+        res_str = to_str(mat, max_rows=30, max_cols=3, num_after_dots=1)
+        count = count_str = 0
+        for value in values:
+            if f"<td>{value}</td>" in res:
+                count += 1
+            if f"{value}" in res_str:
+                count_str += 1
+        self.assertEqual(len(values), count)
+        self.assertEqual(len(values), count_str)
+
     def test_patch_sparse(self):
         source_mat = sparse.COO(coords=[1, 4, 6], data=[11, 44, 222], shape=(10,))
 
@@ -117,7 +141,6 @@ class PyDataSparseTests(unittest.TestCase):
             mat = tp(source_mat)
             res = repr(mat)
             self.assertIn("222", res)
-            # self.assertIn("┌", res)  # a character used by MatRepr
             self.assertIn("[", res)  # a character used by MatRepr
 
 
