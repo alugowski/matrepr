@@ -2,6 +2,8 @@
 # Use of this source code is governed by the BSD 2-clause license found in the LICENSE.txt file.
 # SPDX-License-Identifier: BSD-2-Clause
 
+from typing import List, Optional
+
 from .adapters import MatrixAdapter, MatrixAdapterRow, Truncated2DMatrix, to_trunc, DupeList
 from .base_formatter import unicode_dots
 
@@ -28,6 +30,12 @@ def _single_line(s: str) -> str:
     for i, line in enumerate(lines):
         lines[i] = line.strip()
     return " ".join(lines)
+
+
+def _to_str(iterable) -> Optional[List]:
+    if iterable is None:
+        return None
+    return [None if x is None else str(x) for x in iterable]
 
 
 class ListConverter:
@@ -119,4 +127,6 @@ class ListConverter:
                 mat.get_shape()[1] > self.max_cols:
             mat = to_trunc(mat, self.max_rows, self.max_cols, self.num_after_dots)
 
-        return self._write_matrix(mat, is_vector=is_vector), mat.get_row_labels(), mat.get_col_labels()
+        return self._write_matrix(mat, is_vector=is_vector),\
+            _to_str(mat.get_row_labels()),\
+            _to_str(mat.get_col_labels())

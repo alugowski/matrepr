@@ -44,9 +44,12 @@ class HTMLTableFormatter(BaseFormatter):
             ret = " " + ret
         return ret
 
-    def pprint(self, obj, current_indent=0):
+    def pprint(self, obj, current_indent=0, is_index=False):
         if obj is None:
             return ""
+
+        if is_index and isinstance(obj, int):
+            return int(obj)
 
         if isinstance(obj, (int, float)):
             return self.floatfmt(obj)
@@ -107,7 +110,7 @@ class HTMLTableFormatter(BaseFormatter):
                 self.write(f"<th></th>", indent=cell_indent)
             for col_label in mat.get_col_labels():
                 attr = ' style="text-align: center;"' if self.center_header else ""
-                self.write(f"<th{attr}>{self.pprint(col_label)}</th>", indent=cell_indent)
+                self.write(f"<th{attr}>{self.pprint(col_label, is_index=True)}</th>", indent=cell_indent)
             self.write("</tr>", indent=body_indent)
             self.write("</thead>", indent=body_indent)
 
@@ -116,7 +119,7 @@ class HTMLTableFormatter(BaseFormatter):
         for row_idx in range(nrows):
             self.write("<tr>", body_indent)
             if row_labels:
-                self.write(f"<th>{self.pprint(next(row_labels))}</th>", cell_indent)
+                self.write(f"<th>{self.pprint(next(row_labels), is_index=True)}</th>", cell_indent)
 
             col_range = (0, ncols)
             for col_idx, cell in enumerate(mat.get_dense_row(row_idx, col_range=col_range)):

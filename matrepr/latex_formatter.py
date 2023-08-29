@@ -64,9 +64,12 @@ class LatexFormatter(BaseFormatter):
             self.floatfmt = lambda f: python_scientific_to_latex_times10(format(f))
         self.indent_width = 4
 
-    def pprint(self, obj):
+    def pprint(self, obj, is_index=False):
         if obj is None:
             return ""
+
+        if is_index and isinstance(obj, int):
+            return int(obj)
 
         if isinstance(obj, (int, float)):
             return self.floatfmt(obj)
