@@ -3,13 +3,9 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 """
-Note: Only import this in Jupyter.
-If not using Jupyter then just `import matrepr`.
+Removed in favor of Jupyter extension:
 
-Importing this module registers formatters with Jupyter.
-
-Also includes all public methods from the matrepr module for convenient one-line imports.
+%load_ext matrepr
 """
 
-# noinspection PyUnresolvedReferences
-from .jupyter_html import *
+raise DeprecationWarning("Please switch to Jupyter extension: %load_ext matrepr")
