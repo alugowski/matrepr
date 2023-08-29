@@ -7,20 +7,22 @@ import unittest
 import matrepr
 
 
-class JupyterImportTests(unittest.TestCase):
+class JupyterExtensionImportTests(unittest.TestCase):
     def test_import_jupyter(self):
-        # noinspection PyUnresolvedReferences
-        import matrepr.jupyter
+        matrepr.load_ipython_extension(None)
+        matrepr.unload_ipython_extension(None)
         self.assertEqual(True, True)  # did not raise
 
     def test_import_jupyter_html(self):
-        # noinspection PyUnresolvedReferences
-        import matrepr.jupyter_html
+        import matrepr.html
+        matrepr.html.load_ipython_extension(None)
+        matrepr.html.unload_ipython_extension(None)
         self.assertEqual(True, True)  # did not raise
 
     def test_import_jupyter_latex(self):
-        # noinspection PyUnresolvedReferences
-        import matrepr.jupyter_latex
+        import matrepr.latex
+        matrepr.latex.load_ipython_extension(None)
+        matrepr.latex.unload_ipython_extension(None)
         self.assertEqual(True, True)  # did not raise
 
 
@@ -59,26 +61,6 @@ class BasicTests(unittest.TestCase):
 
         res = matrepr.to_latex(mat, title=None, title_latex="TITLE")
         self.assertIn("TITLE", res)
-
-    def test_driver_registration_notify(self):
-        from unittest.mock import MagicMock
-
-        callback = MagicMock()
-
-        matrepr._driver_registration_notify.append(callback)
-        self.assertFalse(callback.called)
-
-        class MockDriver(matrepr.Driver):
-            @staticmethod
-            def get_supported_types():
-                return []
-
-            @staticmethod
-            def adapt(_):
-                return None
-
-        matrepr.register_driver(MockDriver)
-        self.assertTrue(callback.called)
 
 
 if __name__ == '__main__':

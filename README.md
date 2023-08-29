@@ -45,17 +45,20 @@ To one of these:
     └                                                           ┘
 ```
 
-`mprint(A)`, `to_str()` for the string, or simply `A` if using monkey patching as below.
+`mprint(A)`, `to_str(A)`  
+or simply `A` with monkey patching as below
 
 ### HTML
 ![HTML](doc/images/html.png)
 
-`mdisplay(A)`, or simply `A` if Jupyter integration enabled. Use `to_html()` for raw HTML string.
+`mdisplay(A)`, `to_html(A)`  
+or simply `A` with Jupyter extension `%load_ext matrepr`
 
 ### LaTeX
 ![LaTeX](doc/images/latex.png)
 
-`mdisplay(A, 'latex')`, or simply `A` if LaTeX version of Jupyter integration enabled. Use `to_latex()` for raw LaTeX string.
+`mdisplay(A, 'latex')`, `to_latex(A)`  
+or simply `A` with Jupyter extension `%load_ext matrepr.latex`
 
 **Note:** For Spy plots see [MatSpy](https://github.com/alugowski/matspy).
 
@@ -76,26 +79,25 @@ Methods:
 * `mprint(A)`: print `A` as a string to stdout.
 * `mdisplay(A)`: Displays the output of `to_html`, `to_latex`, or `to_str` in Jupyter.
 
-## Jupyter Integration
+## Jupyter Extension
 
 MatRepr can integrate with [Jupyter's formatter](https://ipython.readthedocs.io/en/stable/config/integrating.html)
-to format SciPy, GraphBLAS, and PyData/Sparse with MatRepr. Simply import `matrepr.jupyter` to register MatRepr's formatter
-with Jupyter.
+to format SciPy, GraphBLAS, and PyData/Sparse with MatRepr. Simply:
 
-```python
-import matrepr.jupyter
+```jupyter
+%load_ext matrepr
 ```
 
-![Jupyter Integration](doc/images/jupyter_register.png)
+<img src="doc/images/jupyter_register.png" width=600 alt="Jupyter extension screenshot"/>
 
 If you prefer LaTeX:
-```python
-import matrepr.jupyter_latex
+```jupyter
+%load_ext matrepr.latex
 ```
 
 ## Interactive Python: Monkey Patching `__repr__`
 
-Unlike Jupyter, the interactive Python REPL does not have a nice way to register a formatter.
+The interactive Python REPL does not have a nice way to register a formatter.
 
 We can monkey patch a `__repl__` method into supported matrix classes for a similar effect.
 
@@ -163,10 +165,10 @@ Each package that MatRepr supports implements two classes:
 * `Driver`: Declares what types are supported and supplies an adapter.
   * `get_supported_types`: This declares what types are supported, as strings to avoid unnecessary imports.
   * `adapt(A)`: Returns a `MatrixAdapter` for a matrix that this driver supports.
-* `MatrixAdapter`. A common interface for extracting relevant matrix data. MatRepr supports three kinds, only one needs to be implemented:
-  * `MatrixAdapterRow`: is able to efficiently read a selected row.
-  * `MatrixAdapterCol`: is able to efficiently read a selected column.
-  * `MatrixAdapterCoo`: is able to extract a portion of the matrix as tuples.
+* Implement any of these `MatrixAdapter` classes:
+  * `MatrixAdapterRow`: for structs able to efficiently read a selected row.
+  * `MatrixAdapterCol`: for structs able to efficiently read a selected column.
+  * `MatrixAdapterCoo`: for structs able to extract a portion of the matrix as tuples.
 
 See [matrepr/adapters](matrepr/adapters) for details.
 

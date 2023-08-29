@@ -10,6 +10,7 @@ from typing import Any, Type, Callable, Dict, List, Union, Iterable, Optional
 from .adapters import Driver, MatrixAdapter
 from .html_formatter import HTMLTableFormatter, NotebookHTMLFormatter
 from .latex_formatter import LatexFormatter, python_scientific_to_latex_times10
+from matrepr.html import load_ipython_extension, unload_ipython_extension
 
 
 @dataclass
@@ -154,7 +155,6 @@ Changeable default parameters that apply unless overridden in a method call.
 """
 _drivers: List[Type[Driver]] = []
 _driver_map: Dict[str, Type[Driver]] = {}
-_driver_registration_notify: List[Callable[[Type[Driver]], None]] = []
 
 
 def register_driver(driver: Type[Driver]):
@@ -162,9 +162,6 @@ def register_driver(driver: Type[Driver]):
 
     for type_str, _ in driver.get_supported_types():
         _driver_map[type_str] = driver
-
-    for func in _driver_registration_notify:
-        func(driver)
 
 
 def _register_bundled():
@@ -311,23 +308,14 @@ def mdisplay(mat: Any, method="html", **kwargs):
         raise ValueError("Unknown method: " + method)
 
 
-def _register_jupyter_formatter(mime_type: str, repr_method: Optional[Callable]):
+def _register_jupyter_formatter(ipython, mime_type: str, repr_method: Optional[Callable]):
     """
     See https://ipython.readthedocs.io/en/stable/config/integrating.html
     """
-    # This import is unnecessary but makes static type checking work.
-    # noinspection PyProtectedMember
-    try:
-        import IPython
-    except ImportError:
-        # no Jupyter
+    if not ipython:
         return
 
-    try:
-        formatter = IPython.get_ipython().display_formatter.formatters[mime_type]
-    except AttributeError:
-        # not running in a notebook
-        return
+    formatter = ipython.get_ipython().display_formatter.formatters[mime_type]
 
     for driver in _drivers:
         for type_str, register_with_jupyter in driver.get_supported_types():
