@@ -21,11 +21,12 @@ Features:
 * A `__repr__` monkey patch to format matrices in the Python shell.
 * Nested sub-matrices of any supported type, including mixing packages.
 * Configurable float precision or format string.
-* Row and column labels are both toggleable and customizable.
-* String output can optionally detect terminal width.
+* Toggle row and column indices or set your own labels.
+* Toggle matrix description or set your own title.
+* String output can optionally autodetect terminal width.
 * Methods to directly display a matrix (`mprint`, `mdisplay` for Jupyter)
 * Methods to convert to string (`to_html`, `to_latex`, `to_str`).
-* Configurable globally and/or per method call.
+* Configurable per method call or set defaults with `matrepr.params`.
 * Fast.
 
 See [Jupyter notebook with examples.](doc/demo.ipynb)
