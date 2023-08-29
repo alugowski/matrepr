@@ -10,21 +10,25 @@ pip install matrepr
 
 Sparse matrix string, HTML, and LaTeX representation with Jupyter integration.
 
-Supports:
-
 * **SciPy** - sparse matrices and arrays like `csr_matrix` and `coo_array`
 * **[Python-graphblas](https://github.com/python-graphblas/python-graphblas)** - `gb.Matrix` and `gb.Vector` [(demo)](doc/demo-python-graphblas.ipynb)
 * **[PyData/Sparse](https://sparse.pydata.org/)** - `COO`, `DOK`, `GCXS` [(demo)](doc/demo-pydata-sparse.ipynb)
 * **NumPy** - `ndarray`
 * `list`, `tuple`, including multi-dimensional and jagged
 
-Use MatRepr to turn this opaque string:
-```
-<1000x1000 sparse matrix of type '<class 'numpy.float64'>'
-	with 212345 stored elements in COOrdinate format>
-```
+Features:
+* Jupyter extension to format matrices in cell outputs.
+* A `__repr__` monkey patch to format matrices in the Python shell.
+* Nested sub-matrices of any supported type, including mixing packages.
+* Configurable float precision or format string.
+* Row and column labels are both toggleable and customizable.
+* String output can optionally detect terminal width.
+* Methods to directly display a matrix (`mprint`, `mdisplay` for Jupyter)
+* Methods to convert to string (`to_html`, `to_latex`, `to_str`).
+* Configurable globally and/or per method call.
+* Fast.
 
-To one of these:
+See [Jupyter notebook with examples.](doc/demo.ipynb)
 
 ### String
 
@@ -81,19 +85,21 @@ Methods:
 
 ## Jupyter Extension
 
-MatRepr can integrate with [Jupyter's formatter](https://ipython.readthedocs.io/en/stable/config/integrating.html)
-to format SciPy, GraphBLAS, and PyData/Sparse with MatRepr. Simply:
+MatRepr's Jupyter extension registers with [Jupyter's formatter](https://ipython.readthedocs.io/en/stable/config/integrating.html)
+to format supported matrices with MatRepr. Simply:
 
 ```jupyter
 %load_ext matrepr
 ```
 
-<img src="doc/images/jupyter_register.png" width=600 alt="Jupyter extension screenshot"/>
-
-If you prefer LaTeX:
+Or if you prefer LaTeX:
 ```jupyter
 %load_ext matrepr.latex
 ```
+
+Example:
+
+<img src="doc/images/jupyter_register.png" width=600 alt="Jupyter extension screenshot"/>
 
 ## Interactive Python: Monkey Patching `__repr__`
 
