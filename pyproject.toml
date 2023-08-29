@@ -26,3 +26,4 @@ repository = "https://github.com/alugowski/matrepr"
 
 [project.optional-dependencies]
 test = ["pytest", "html5lib", "scipy"]
+supported = ["scipy", "numpy", "python-graphblas", "sparse"]
