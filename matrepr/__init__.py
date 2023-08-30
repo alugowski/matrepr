@@ -196,7 +196,6 @@ def _get_driver(mat, unsupported_raise=True):
     type_str = ".".join((type(mat).__module__, type(mat).__name__))
     driver = _driver_map.get(type_str, None)
     if not driver and unsupported_raise:
-        # print("Supported types: \n" + "\n".join(sorted(list(_driver_map.keys()))))
         raise AttributeError("Unsupported type: " + type_str)
     return driver
 
