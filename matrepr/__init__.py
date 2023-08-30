@@ -139,13 +139,15 @@ class MatReprParams:
             ret.floatfmt_latex = lambda f: python_scientific_to_latex_times10(ret.floatfmt(f))
 
         # compute automatic values
+        if kwargs.get("auto_width_str", False):
+            if "max_cols" not in kwargs and "width_str" not in kwargs:
+                # user did not explicitly specify a width
+                ret.width_str = 0
+                ret.max_cols = 999
 
-        force_max_cols = "max_cols" in kwargs and "width_str" not in kwargs  # respect explicit max_cols argument
-        if not force_max_cols and \
-                (ret.width_str == 0 or (ret.width_str is None and kwargs.get("auto_width_str", False))):
+        if ret.width_str == 0:
             width_str, _ = get_terminal_size()
             ret.width_str = width_str
-
         return ret
 
     def to_kwargs(self):
