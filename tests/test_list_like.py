@@ -52,7 +52,7 @@ class ListLikeTests(unittest.TestCase):
             [np_a, np_b, np_2d]
         ]
 
-        row_labels = ["scientific", "singleton", "complex", "nested", "strings", "numpy"]
+        row_labels = ["sci", "single", "complex", "nested", "strings", "numpy"]
         col_labels = ["one", "two", "three", "four", "five"]
 
         for max_cols in [3, 99]:

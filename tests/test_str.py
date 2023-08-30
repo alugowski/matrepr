@@ -11,7 +11,7 @@ from matrepr.string_formatter import max_line_width
 from .test_html import generate_fixed_value
 
 
-class ToHTMLTests(unittest.TestCase):
+class ToStrTests(unittest.TestCase):
     def setUp(self):
         self.mats = [
             scipy.sparse.random(10, 10, density=0.4),
@@ -77,6 +77,21 @@ class ToHTMLTests(unittest.TestCase):
         title = "test title"
         custom = to_str(mat, title=title)
         self.assertIn(title, custom)
+
+    def test_tablefmt(self):
+        mat = generate_fixed_value(11, 11)
+
+        for tablefmt in ["grid", "plain", "simple", "latex", "html"]:
+            res = to_str(mat, tablefmt=tablefmt, max_cols=20, max_rows=20, title=False, indices=False)
+            self.assertGreater(max_line_width(res), 10)
+            res = to_str(mat, tablefmt=tablefmt, max_cols=20, max_rows=5, title=False, indices=True)
+            self.assertGreater(max_line_width(res), 10)
+
+    def test_tabulate_forward(self):
+        mat = [[1, 2], [2000, 300000]]
+        left = to_str(mat, colalign=["left", "left"])
+        right = to_str(mat, colalign=["right", "right"])
+        self.assertNotEquals(left, right)
 
 
 if __name__ == '__main__':
