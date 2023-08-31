@@ -7,7 +7,6 @@ import unittest
 from matrepr import to_html, to_latex, to_str
 import matrepr
 
-from .test_scipy import generate_fixed_value
 
 try:
     import graphblas as gb
@@ -19,6 +18,20 @@ try:
 except ImportError:
     have_gb = False
     gb = None
+
+
+def generate_fixed_value(m, n):
+    row_factor = 10**(1+len(str(n)))
+    nnz = m*n
+    rows, cols, data = [1] * nnz, [1] * nnz, [1] * nnz
+    for i in range(nnz):
+        r = int(i / n)
+        c = i % n
+        rows[i] = r
+        cols[i] = c
+        data[i] = (r+1)*row_factor + c
+
+    return gb.Matrix.from_coo(rows, cols, data, nrows=m, ncols=n, dtype='int64'), data
 
 
 @unittest.skipIf(not have_gb, "python-graphblas not installed")
@@ -47,15 +60,13 @@ class GraphBLASMatrixTests(unittest.TestCase):
         self.assertEqual((5, 1), adapter.get_shape())
 
     def test_contents(self):
-        mat = generate_fixed_value(10, 10)
-        gb_mat = gb.io.from_scipy_sparse(mat)
+        gb_mat, data = generate_fixed_value(10, 10)
         res = to_html(gb_mat, notebook=False, max_rows=20, max_cols=20, title=True, indices=True)
-        for value in mat.data:
+        for value in data:
             self.assertIn(f"<td>{value}</td>", res)
 
     def test_truncate(self):
-        mat = generate_fixed_value(20, 20)
-        gb_mat = gb.io.from_scipy_sparse(mat)
+        gb_mat, data = generate_fixed_value(20, 20)
 
         for after_dots, expected_count in [
             (0, 25),  # 5*5
@@ -64,7 +75,7 @@ class GraphBLASMatrixTests(unittest.TestCase):
         ]:
             res = to_html(gb_mat, notebook=False, max_rows=6, max_cols=6, num_after_dots=after_dots)
             count = 0
-            for value in mat.data:
+            for value in data:
                 if f"<td>{value}</td>" in res:
                     count += 1
             self.assertEqual(expected_count, count)

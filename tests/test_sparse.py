@@ -10,10 +10,24 @@ except ImportError:
     sparse = None
 
 from matrepr import to_html, to_latex, to_str
-from .test_html import generate_fixed_value
 
 import numpy.random
 numpy.random.seed(123)
+
+
+def generate_fixed_value(m, n):
+    import scipy
+    row_factor = 10**(1+len(str(n)))
+    nnz = m*n
+    rows, cols, data = [1] * nnz, [1] * nnz, [1] * nnz
+    for i in range(nnz):
+        r = int(i / n)
+        c = i % n
+        rows[i] = r
+        cols[i] = c
+        data[i] = (r+1)*row_factor + c
+
+    return scipy.sparse.coo_matrix((data, (rows, cols)), shape=(m, n), dtype='int64')
 
 
 @unittest.skipIf(sparse is None, "pydata/sparse not installed")

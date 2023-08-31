@@ -8,9 +8,22 @@ import numpy.random
 import scipy.sparse
 
 from matrepr import to_latex
-from .test_html import generate_fixed_value
 
 numpy.random.seed(123)
+
+
+def generate_fixed_value(m, n):
+    row_factor = 10**(1+len(str(n)))
+    nnz = m*n
+    rows, cols, data = [1] * nnz, [1] * nnz, [1] * nnz
+    for i in range(nnz):
+        r = int(i / n)
+        c = i % n
+        rows[i] = r
+        cols[i] = c
+        data[i] = (r+1)*row_factor + c
+
+    return scipy.sparse.coo_matrix((data, (rows, cols)), shape=(m, n), dtype='int64')
 
 
 class ToLatexTests(unittest.TestCase):
