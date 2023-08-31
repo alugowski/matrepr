@@ -4,7 +4,7 @@
 
 import unittest
 
-from matrepr import to_html, to_latex
+from matrepr import to_html, to_latex, to_str
 import matrepr
 
 from .test_scipy import generate_fixed_value
@@ -13,7 +13,7 @@ try:
     import graphblas as gb
 
     # Context initialization must happen before any other imports
-    gb.init("suitesparse", blocking=True)
+    gb.init("suitesparse", blocking=False)
 
     have_gb = True
 except ImportError:
@@ -24,8 +24,10 @@ except ImportError:
 @unittest.skipIf(not have_gb, "python-graphblas not installed")
 class GraphBLASMatrixTests(unittest.TestCase):
     def setUp(self):
+        mat = gb.Matrix.from_coo([0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4], nrows=5, ncols=5)
         self.mats = [
-            gb.Matrix.from_coo([0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4], nrows=5, ncols=5),
+            mat,
+            mat @ mat,  # an expression class
         ]
 
     def test_no_crash(self):
@@ -34,6 +36,9 @@ class GraphBLASMatrixTests(unittest.TestCase):
             self.assertGreater(len(res), 10)
 
             res = to_latex(mat, title=True)
+            self.assertGreater(len(res), 10)
+
+            res = to_str(mat, title=True)
             self.assertGreater(len(res), 10)
 
     def test_shape(self):
@@ -68,8 +73,10 @@ class GraphBLASMatrixTests(unittest.TestCase):
 @unittest.skipIf(not have_gb, "python-graphblas not installed")
 class GraphBLASVectorTests(unittest.TestCase):
     def setUp(self):
+        vec = gb.Vector.from_coo([0, 3, 4, 6], [12.1, -5.4, 2.9, 2.2], size=8)
         self.vecs = [
-            gb.Vector.from_coo([0, 3, 4, 6], [12.1, -5.4, 2.9, 2.2], size=8)
+            vec,
+            vec + vec,  # an expression
         ]
 
     def test_no_crash(self):
@@ -78,6 +85,9 @@ class GraphBLASVectorTests(unittest.TestCase):
             self.assertGreater(len(res), 10)
 
             res = to_latex(vec, title=True)
+            self.assertGreater(len(res), 10)
+
+            res = to_str(vec, title=True)
             self.assertGreater(len(res), 10)
 
     def test_shape(self):
