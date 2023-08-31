@@ -20,6 +20,19 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 
+keywords = [
+    "matrix",
+    "sparse",
+    "html",
+    "latex",
+    "representation",
+    "table",
+    "numpy",
+    "scipy",
+    "pydata",
+    "graphblas",
+]
+
 [project.urls]
 homepage = "https://github.com/alugowski/matrepr"
 repository = "https://github.com/alugowski/matrepr"
