@@ -33,12 +33,9 @@ class GraphBLASAdapter:
     def describe(self) -> str:
         parts = [f"gb.{self.type_name}"]
 
-        fmt = self.get_format()
-        if fmt:
-            parts.append(fmt)
-
         return describe(shape=self.mat.shape,
                         nnz=self.mat.nvals, nz_type=self.mat.dtype,
+                        layout=self.get_format(),
                         notes=", ".join(parts))
 
 

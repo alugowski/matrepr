@@ -23,7 +23,7 @@ class NumpyArrayAdapter(MatrixAdapterRow):
     def describe(self) -> str:
         return describe(shape=self.mat.shape,
                         nnz=self.mat.size, nz_type=self.mat.dtype,
-                        notes="array")
+                        layout="array")
 
     def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Any]:
         row = self.mat if self.is_vec else self.mat[row_idx]
