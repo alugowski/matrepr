@@ -34,7 +34,7 @@ class ListAdapter(MatrixAdapterRow):
         return self.shape
 
     def describe(self) -> str:
-        return describe(shape=self.shape, nnz=self.nnz, notes=None)
+        return describe(shape=self.shape, nnz=self.nnz, layout=type(self.mat).__name__, notes=None)
 
     def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
         row = self.mat if len(self.shape) == 1 else self.mat[row_idx]
@@ -60,7 +60,7 @@ class List1DColumnAdapter(MatrixAdapterCol):
         return self.shape
 
     def describe(self) -> str:
-        return describe(shape=self.shape, nnz=self.nnz, notes=None)
+        return describe(shape=self.shape, nnz=self.nnz, layout=type(self.mat).__name__, notes=None)
 
     def get_col(self, col_idx: int, row_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
         assert col_idx == 0

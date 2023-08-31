@@ -2,6 +2,7 @@
 # Use of this source code is governed by the BSD 2-clause license found in the LICENSE.txt file.
 # SPDX-License-Identifier: BSD-2-Clause
 
+import html
 import unittest
 
 import html5lib
@@ -111,7 +112,7 @@ class ToHTMLTests(unittest.TestCase):
         self.assertNotIn("elements", off)
 
         on = to_html(mat, title=True)
-        self.assertIn(f"{mat.nnz} 'int64' elements", on)
+        self.assertIn(html.escape(f"{mat.nnz} 'int64' elements"), on)
 
         title = "test title"
         custom = to_html(mat, title=title)

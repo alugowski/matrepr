@@ -271,7 +271,7 @@ def to_str(mat: Any, **kwargs) -> str:
     if options.title:
         if options.title is True:
             adapter = _get_adapter(mat, None)
-            title = adapter.describe()
+            title = f"<{adapter.describe()}>"
         else:
             title = options.title
         ret.append(title)

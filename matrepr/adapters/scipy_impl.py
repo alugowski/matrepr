@@ -17,10 +17,8 @@ class SciPyAdapter:
         return self.mat.shape
 
     def describe(self) -> str:
-        format_name = self.mat.getformat()
-
         return describe(shape=self.mat.shape, nnz=self.mat.nnz, nz_type=self.mat.dtype,
-                        notes=f"{format_name}")
+                        layout=self.mat.getformat())
 
 
 class SciPyCSRAdapter(SciPyAdapter, MatrixAdapterRow):

@@ -27,7 +27,6 @@ class PyDataSparseBase:
 
     def describe(self) -> str:
         parts = [
-            self.mat.format,
             f"fill_value={self.mat.fill_value}",
         ]
 
@@ -39,6 +38,7 @@ class PyDataSparseBase:
 
         return describe(shape=self.mat.shape,
                         nnz=self.mat.nnz, nz_type=self.mat.dtype,
+                        layout=self.mat.format,
                         notes=", ".join(parts))
 
 

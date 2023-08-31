@@ -102,6 +102,10 @@ class HTMLTableFormatter(BaseFormatter):
         row_labels = mat.get_row_labels() if self.indices else None
         row_labels = iter(row_labels) if row_labels else None
 
+        # Title
+        if self.title:
+            self.write(f"<caption>{self.title}</caption>")
+
         # Header
         if self.indices:
             self.write(f'<thead>', indent=body_indent)
@@ -134,7 +138,7 @@ class HTMLTableFormatter(BaseFormatter):
     def format(self, mat: MatrixAdapter, indent: int = 0):
         if self.title:
             title = mat.describe() if self.title is True else self.title
-            self.write(f"<p>{title}</p>")
+            self.title = html.escape(title).replace("\n", "<br>")
 
         if not isinstance(mat, MatrixAdapterRow) or \
                 len(mat.get_shape()) != 2 or \
@@ -195,6 +199,7 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
         empty_content = r'"\00a0\00a0\00a0"'  # will be doubled
 
         for tags, attributes in [
+            (table + "caption", {"white-space": "pre", "text-align": "center"}),  # title
             (table, {"border-collapse": "collapse"}),  # already in Jupyter style, but not if copy/pasted elsewhere
             (thead, {"border": "0px"}),
             (tbody + "tr th", {**index_attributes, "text-align": "right"}),  # row indices
@@ -212,6 +217,7 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
             (tbody + "> tr:last-child > td:last-of-type::after", {**right_ticks, "border-bottom": border}),
 
             # tensor styles
+            (tensor + "caption", {"white-space": "pre", "text-align": "center"}),  # title
             (tenbody + "tr th", {**index_attributes, "text-align": "right"}),  # row indices
             (tenhead + "tr th", {**index_attributes, "text-align": "center"}),  # column indices
             (tenbody + "tr td", {"vertical-align": "middle", "text-align": self.cell_align, "position": "relative"}),
