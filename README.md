@@ -4,10 +4,6 @@
 
 # MatRepr
 
-```shell
-pip install matrepr
-```
-
 Sparse matrix string, HTML, and LaTeX representation with Jupyter integration.
 
 * **SciPy** - sparse matrices and arrays like `csr_matrix` and `coo_array`
@@ -30,6 +26,17 @@ Features:
 * Fast.
 
 See [Jupyter notebook with examples.](doc/demo.ipynb)
+
+## Quick Start
+
+```shell
+pip install matrepr
+```
+
+```python
+from matrepr import mdisplay, mprint
+```
+
 
 ### String
 
@@ -65,24 +72,14 @@ or simply `A` with Jupyter extension `%load_ext matrepr`
 `mdisplay(A, 'latex')`, `to_latex(A)`  
 or simply `A` with Jupyter extension `%load_ext matrepr.latex`
 
-**Note:** For Spy plots see [MatSpy](https://github.com/alugowski/matspy).
-
-## Quick Start
-
-```shell
-pip install matrepr
-```
-
-```python
-from matrepr import mdisplay
-```
-
 Methods:
-* `to_str(A)`: Format `A` as string.
+* `to_str(A)`: Format `A` as a text string.
 * `to_html(A)`: Format `A` as an HTML table. Returns a string.
 * `to_latex(A)`: Format `A` as a LaTeX matrix. Returns a string.
 * `mprint(A)`: print `A` as a string to stdout.
 * `mdisplay(A)`: Displays the output of `to_html`, `to_latex`, or `to_str` in Jupyter.
+
+**Note:** For Spy plots see [MatSpy](https://github.com/alugowski/matspy).
 
 ## Jupyter Extension
 
