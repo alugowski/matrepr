@@ -44,6 +44,7 @@ class GraphBLASAdapter:
 
 class GraphBLASMatrixAdapter(GraphBLASAdapter, MatrixAdapterCoo):
     def __init__(self, mat: gb.Matrix, type_name):
+        super(MatrixAdapterCoo, self).__init__()
         super().__init__(mat, type_name)
 
     def get_coo(self, row_range: Tuple[int, int], col_range: Tuple[int, int]) -> Iterable[Tuple[int, int, Any]]:
@@ -57,6 +58,7 @@ class GraphBLASMatrixAdapter(GraphBLASAdapter, MatrixAdapterCoo):
 
 class GraphBLASVectorAdapter(GraphBLASAdapter, MatrixAdapterRow):
     def __init__(self, vec: gb.Vector, type_name):
+        super(MatrixAdapterRow, self).__init__()
         super().__init__(vec, type_name)
 
     def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Any]:

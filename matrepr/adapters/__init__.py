@@ -40,6 +40,10 @@ class DupeList(list):
 
 
 class MatrixAdapter(ABC):
+    def __init__(self):
+        self.row_labels = None
+        self.col_labels = None
+
     @abstractmethod
     def describe(self) -> str:
         """
@@ -53,10 +57,10 @@ class MatrixAdapter(ABC):
         """
 
     def get_row_labels(self) -> Optional[Iterable[Optional[int]]]:
-        return self.row_labels if hasattr(self, "row_labels") else range(self.get_shape()[0])
+        return self.row_labels if self.row_labels else range(self.get_shape()[0])
 
     def get_col_labels(self) -> Iterable[Optional[Any]]:
-        return self.col_labels if hasattr(self, "col_labels") else range(self.get_shape()[1])
+        return self.col_labels if self.col_labels else range(self.get_shape()[1])
 
     # noinspection PyMethodMayBeStatic
     def is_tensor(self) -> bool:
@@ -64,6 +68,9 @@ class MatrixAdapter(ABC):
 
 
 class MatrixAdapterRow(MatrixAdapter):
+    def __init__(self):
+        super().__init__()
+
     @abstractmethod
     def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
         """
@@ -95,6 +102,9 @@ class MatrixAdapterRow(MatrixAdapter):
 
 
 class MatrixAdapterCol(MatrixAdapter):
+    def __init__(self):
+        super().__init__()
+
     @abstractmethod
     def get_col(self, col_idx: int, row_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
         """
@@ -107,6 +117,9 @@ class MatrixAdapterCol(MatrixAdapter):
 
 
 class MatrixAdapterCoo(MatrixAdapter):
+    def __init__(self):
+        super().__init__()
+
     @abstractmethod
     def get_coo(self, row_range: Tuple[int, int], col_range: Tuple[int, int]) -> Iterable[Tuple[int, int, Any]]:
         """
@@ -119,6 +132,9 @@ class MatrixAdapterCoo(MatrixAdapter):
 
 
 class TensorAdapterCooRow(MatrixAdapterRow):
+    def __init__(self):
+        super().__init__()
+
     """
     Present an n-dimensional tensor as a 2D table where each row is a coordinate tuple of length n+1:
     coordinates and value.
@@ -142,7 +158,7 @@ class TensorAdapterCooRow(MatrixAdapterRow):
         """
 
     def get_col_labels(self) -> Iterable[Optional[Any]]:
-        if hasattr(self, "col_labels"):
+        if self.col_labels:
             return self.col_labels
 
         ret = list(range(self.get_shape()[1]))
@@ -186,8 +202,9 @@ class Truncated2DMatrix(MatrixAdapterRow):
     - Convert any adapter to a :class:`MatrixAdapterRow`.
     - If a matrix is too large then supports showing just the corners with ellipses designating the truncated portions.
     """
-    def __init__(self, orig_shape: Tuple[int, int], display_shape: Tuple[int, int], num_after_dots=2,
-                 row_labels=None, col_labels=None, description=None):
+    def __init__(self, orig_shape: Tuple[int, int], display_shape: Tuple[int, int], num_after_dots=2, row_labels=None,
+                 col_labels=None, description=None):
+        super().__init__()
         self.show_row_labels = len(orig_shape) != 1
         if len(orig_shape) == 1:
             orig_shape = (1, orig_shape[0])
@@ -198,8 +215,8 @@ class Truncated2DMatrix(MatrixAdapterRow):
         self.nrows, self.ncols = self.display_shape
         self.num_after_dots = num_after_dots
         self.elements: List[Any] = [[None] * self.ncols for _ in range(self.nrows)]
-        self.orig_row_labels = row_labels
-        self.orig_col_labels = col_labels
+        self.row_labels = row_labels
+        self.col_labels = col_labels
         self.description = description
 
         self.dot_col = None
@@ -242,31 +259,31 @@ class Truncated2DMatrix(MatrixAdapterRow):
             return None
 
         if self.dot_row is None:
-            return self.orig_row_labels if self.orig_row_labels else list(range(self.orig_shape[0]))
+            return self.row_labels if self.row_labels else list(range(self.orig_shape[0]))
         else:
             pre_dot_end, post_dot_start = self.get_dot_indices_row()
-            if self.orig_row_labels is None:
+            if self.row_labels is None:
                 # generate indices
                 # noinspection PyTypeChecker
                 return list(range(pre_dot_end)) + [None]\
                     + list(range(post_dot_start, self.orig_shape[0]))
             else:
-                return self.orig_row_labels[:pre_dot_end] + [None] \
-                    + self.orig_row_labels[post_dot_start:self.orig_shape[0]]
+                return self.row_labels[:pre_dot_end] + [None] \
+                    + self.row_labels[post_dot_start:self.orig_shape[0]]
 
     def get_col_labels(self) -> Iterable[Optional[int]]:
         if self.dot_col is None:
-            return self.orig_col_labels if self.orig_col_labels else list(range(self.orig_shape[1]))
+            return self.col_labels if self.col_labels else list(range(self.orig_shape[1]))
         else:
             pre_dot_end, post_dot_start = self.get_dot_indices_col()
-            if self.orig_col_labels is None:
+            if self.col_labels is None:
                 # generate indices
                 # noinspection PyTypeChecker
                 return list(range(pre_dot_end)) + [None]\
                     + list(range(post_dot_start, self.orig_shape[1]))
             else:
-                return self.orig_col_labels[:pre_dot_end] + [None] \
-                    + self.orig_col_labels[post_dot_start:self.orig_shape[1]]
+                return self.col_labels[:pre_dot_end] + [None] \
+                    + self.col_labels[post_dot_start:self.orig_shape[1]]
 
     def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
         return enumerate(self.get_dense_row(row_idx, col_range), start=col_range[0])
@@ -398,8 +415,8 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
             trunc = Truncated2DMatrix(orig_shape=mat.get_shape(),
                                       display_shape=(max_rows, max_cols),
                                       num_after_dots=0,
-                                      row_labels=mat.row_labels if hasattr(mat, "row_labels") else None,
-                                      col_labels=mat.col_labels if hasattr(mat, "col_labels") else None,
+                                      row_labels=mat.row_labels,
+                                      col_labels=mat.col_labels,
                                       description=mat.describe())
             for row, col, val in top_left:
                 trunc.set(row, col, val)
@@ -407,8 +424,8 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
             trunc = Truncated2DMatrix(orig_shape=mat.get_shape(),
                                       display_shape=(max_rows, max_cols),
                                       num_after_dots=num_after_dots,
-                                      row_labels=mat.row_labels if hasattr(mat, "row_labels") else None,
-                                      col_labels=mat.col_labels if hasattr(mat, "col_labels") else None,
+                                      row_labels=mat.row_labels,
+                                      col_labels=mat.col_labels,
                                       description=mat.describe())
             for row, col, val in top_left:
                 trunc.set(row, col, val)
@@ -435,8 +452,8 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
         trunc = Truncated2DMatrix(orig_shape=mat.get_shape(),
                                   display_shape=(max_rows, max_cols),
                                   num_after_dots=num_after_dots,
-                                  row_labels=mat.row_labels if hasattr(mat, "row_labels") else None,
-                                  col_labels=mat.col_labels if hasattr(mat, "col_labels") else None,
+                                  row_labels=mat.row_labels,
+                                  col_labels=mat.col_labels,
                                   description=mat.describe())
 
         pre_dot_end, post_dot_start = trunc.get_dot_indices_col()
@@ -457,8 +474,8 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
         trunc = Truncated2DMatrix(orig_shape=mat.get_shape(),
                                   display_shape=(max_rows, max_cols),
                                   num_after_dots=num_after_dots,
-                                  row_labels=mat.row_labels if hasattr(mat, "row_labels") else None,
-                                  col_labels=mat.col_labels if hasattr(mat, "col_labels") else None,
+                                  row_labels=mat.row_labels,
+                                  col_labels=mat.col_labels,
                                   description=mat.describe())
 
         pre_dot_end, post_dot_start = trunc.get_dot_indices_row()

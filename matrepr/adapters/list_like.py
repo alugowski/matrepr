@@ -19,6 +19,7 @@ def count_none(iterable):
 
 class ListAdapter(MatrixAdapterRow):
     def __init__(self, mat: list):
+        super().__init__()
         self.mat = mat
         self.row_lengths = [(1 if is_single(row) else len(row)) for row in mat]
         if len(mat) == 0 or all(is_single(row) for row in mat):
@@ -50,6 +51,7 @@ class ListAdapter(MatrixAdapterRow):
 
 class List1DColumnAdapter(MatrixAdapterCol):
     def __init__(self, mat: list):
+        super().__init__()
         self.mat = mat
         self.shape = (len(mat), 1)
         self.nnz = len(mat)

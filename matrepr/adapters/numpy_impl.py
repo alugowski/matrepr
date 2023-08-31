@@ -9,6 +9,7 @@ from . import describe, MatrixAdapterRow
 
 class NumpyArrayAdapter(MatrixAdapterRow):
     def __init__(self, mat):
+        super().__init__()
         self.mat = mat
         self.is_vec = len(mat.shape) < 2
 
