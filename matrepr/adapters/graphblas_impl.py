@@ -10,8 +10,9 @@ from . import describe, MatrixAdapterCoo, MatrixAdapterRow
 
 
 class GraphBLASAdapter:
-    def __init__(self, mat):
+    def __init__(self, mat, type_name):
         self.mat = mat
+        self.type_name = type_name
 
     def get_shape(self) -> tuple:
         return self.mat.shape
@@ -30,7 +31,7 @@ class GraphBLASAdapter:
             return None
 
     def describe(self) -> str:
-        parts = [f"gb.{type(self.mat).__name__}"]
+        parts = [f"gb.{self.type_name}"]
 
         fmt = self.get_format()
         if fmt:
@@ -42,8 +43,8 @@ class GraphBLASAdapter:
 
 
 class GraphBLASMatrixAdapter(GraphBLASAdapter, MatrixAdapterCoo):
-    def __init__(self, mat: gb.Matrix):
-        super().__init__(mat)
+    def __init__(self, mat: gb.Matrix, type_name):
+        super().__init__(mat, type_name)
 
     def get_coo(self, row_range: Tuple[int, int], col_range: Tuple[int, int]) -> Iterable[Tuple[int, int, Any]]:
         ret = self.mat[slice(*row_range), slice(*col_range)]
@@ -55,8 +56,8 @@ class GraphBLASMatrixAdapter(GraphBLASAdapter, MatrixAdapterCoo):
 
 
 class GraphBLASVectorAdapter(GraphBLASAdapter, MatrixAdapterRow):
-    def __init__(self, vec: gb.Vector):
-        super().__init__(vec)
+    def __init__(self, vec: gb.Vector, type_name):
+        super().__init__(vec, type_name)
 
     def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Any]:
         assert row_idx == 0

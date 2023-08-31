@@ -15,14 +15,28 @@ class GraphBLASDriver(Driver):
             ("graphblas.core.matrix.Matrix", True),
             ("graphblas.Vector", True),
             ("graphblas.core.vector.Vector", True),
+            # Expressions:
+            ("graphblas.core.expr.InfixExprBase", True),
+            ("graphblas.core.infix.VectorInfixExpr", True),
+            ("graphblas.core.infix.MatrixInfixExpr", True),
+            ("graphblas.core.infix.VectorMatMulExpr", True),
+            ("graphblas.core.infix.MatrixMatMulExpr", True),
+            ("graphblas.core.vector.VectorExpression", True),
+            ("graphblas.core.matrix.MatrixExpression", True),
         ]
 
     @staticmethod
     def adapt(mat: Any):
         from .graphblas_impl import GraphBLASMatrixAdapter, GraphBLASVectorAdapter
-        if "Matrix" in str(type(mat)):
-            return GraphBLASMatrixAdapter(mat)
-        elif "Vector" in str(type(mat)):
-            return GraphBLASVectorAdapter(mat)
+        type_name = type(mat).__name__
+        if hasattr(mat, "_get_value"):
+            # This is an expression. Compute the value and format that.
+            # noinspection PyProtectedMember
+            mat = mat._get_value()
+
+        if "Matrix" == type(mat).__name__:
+            return GraphBLASMatrixAdapter(mat, type_name)
+        elif "Vector" == type(mat).__name__:
+            return GraphBLASVectorAdapter(mat, type_name)
         else:
             raise ValueError("Unknown type: " + str(type(mat)))
