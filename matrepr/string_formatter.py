@@ -39,12 +39,12 @@ Renders a table that looks like a horizontal list, using comma separators instea
 
 
 matrix_table_format = TableFormat(
-    lineabove=Line("┌", " ", " ", "┐"),
-    linebelowheader=Line("┌", " ", " ", "┐"),
+    lineabove=Line("┌", " ", "", "┐"),
+    linebelowheader=Line("┌", " ", "", "┐"),
     linebetweenrows=None,
-    linebelow=Line("└", " ", " ", "┘"),
-    headerrow=DataRow(" ", " ", " "),
-    datarow=DataRow("│", " ", "│"),
+    linebelow=Line("└", " ", "", "┘"),
+    headerrow=DataRow(" ", "", " "),
+    datarow=DataRow("│", "", "│"),
     padding=1,
     with_header_hide=["lineabove"],
 )
