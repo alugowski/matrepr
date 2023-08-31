@@ -79,15 +79,6 @@ or simply `A` with Jupyter extension `%load_ext matrepr`
 `mdisplay(A, 'latex')`, `to_latex(A)`  
 or simply `A` with Jupyter extension `%load_ext matrepr.latex`
 
-Methods:
-* `to_str(A)`: Format `A` as a text string.
-* `to_html(A)`: Format `A` as a plain or notebook-styled HTML table. Returns a string.
-* `to_latex(A)`: Format `A` as a LaTeX matrix. Returns a string.
-* `mprint(A)`: print `A` as a string to stdout.
-* `mdisplay(A)`: Displays the output of `to_html`, `to_latex`, or `to_str` in Jupyter.
-
-**Note:** For Spy plots see [MatSpy](https://github.com/alugowski/matspy).
-
 ## Jupyter Extension
 
 MatRepr's Jupyter extension registers with [Jupyter's formatter](https://ipython.readthedocs.io/en/stable/config/integrating.html)
@@ -105,6 +96,37 @@ Or if you prefer LaTeX:
 Example:
 
 <img src="doc/images/jupyter_register.png" width=600 alt="Jupyter extension screenshot"/>
+
+
+## Methods
+* `to_str(A)`: Format `A` as a text string.
+* `to_html(A)`: Format `A` as a plain or notebook-styled HTML table. Returns a string.
+* `to_latex(A)`: Format `A` as a LaTeX matrix. Returns a string.
+* `mprint(A)`: print `A` as a string to stdout.
+* `mdisplay(A)`: Displays the output of `to_html`, `to_latex`, or `to_str` in Jupyter.
+
+**Note:** For Spy plots see [MatSpy](https://github.com/alugowski/matspy).
+
+### Arguments
+
+All methods take the same arguments. Apart from the matrix itself:
+
+* `title`: string label. If `True`, then a matrix description is auto generated that contains matrix shape, number and type of nonzeros, etc.
+* `indices`: Whether to show matrix indices.
+* `max_rows`, `max_rows`: size of table. Matrices larger than this are truncated with ellipses.
+* `precision`: floating-point precision
+* `num_after_dots`: How many rows/columns to show from the end of the matrix if the entire matrix does not fit.
+
+#### Overriding defaults
+`matrepr.params` contains the default values for all arguments.
+
+For example, to always disable the title, disable indices, and only show the top-left part of the matrix:
+
+```python
+matrepr.params.title = False
+matrepr.params.indices = False
+matrepr.params.num_after_dots = 0
+```
 
 ## Interactive Python: Monkey Patching `__repr__`
 
@@ -135,27 +157,6 @@ Example:
 2 │         0.2987   0.8098          │
 3 │ 0.1064  0.9613   0.7477          │
   └                                  ┘
-```
-
-## Arguments
-
-All methods take the same arguments. Apart from the matrix itself:
-
-* `title`: string label. If `True`, then a matrix description is auto generated that contains matrix shape, number and type of nonzeros, etc.
-* `indices`: Whether to show matrix indices.
-* `max_rows`, `max_rows`: size of table. Matrices larger than this are truncated with ellipses.
-* `precision`: floating-point precision
-* `num_after_dots`: How many rows/columns to show from the end of the matrix if the entire matrix does not fit.
-
-### Overriding defaults
-`matrepr.params` contains the default values for all arguments.
-
-For example, to always disable the title, disable indices, and only show the top-left part of the matrix:
-
-```python
-matrepr.params.title = False
-matrepr.params.indices = False
-matrepr.params.num_after_dots = 0
 ```
 
 ## Edge Cases
