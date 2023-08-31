@@ -1,6 +1,7 @@
 [![tests](https://github.com/alugowski/matrepr/actions/workflows/tests.yml/badge.svg)](https://github.com/alugowski/matrepr/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/gh/alugowski/matrepr/graph/badge.svg?token=e9QEAd57gz)](https://codecov.io/gh/alugowski/matrepr)
 [![PyPI version](https://badge.fury.io/py/matrepr.svg)](https://pypi.org/project/matrepr/)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/matrepr.svg)](https://anaconda.org/conda-forge/matrepr)
 
 # MatRepr
 
@@ -31,6 +32,10 @@ See [Jupyter notebook with examples.](doc/demo.ipynb)
 
 ```shell
 pip install matrepr
+```
+or
+```shell
+conda install matrepr
 ```
 
 ```python
@@ -74,7 +79,7 @@ or simply `A` with Jupyter extension `%load_ext matrepr.latex`
 
 Methods:
 * `to_str(A)`: Format `A` as a text string.
-* `to_html(A)`: Format `A` as an HTML table. Returns a string.
+* `to_html(A)`: Format `A` as a plain or notebook-styled HTML table. Returns a string.
 * `to_latex(A)`: Format `A` as a LaTeX matrix. Returns a string.
 * `mprint(A)`: print `A` as a string to stdout.
 * `mdisplay(A)`: Displays the output of `to_html`, `to_latex`, or `to_str` in Jupyter.
