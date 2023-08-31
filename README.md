@@ -5,13 +5,15 @@
 
 # MatRepr
 
-Sparse matrix string, HTML, and LaTeX representation with Jupyter integration.
+Make every matrix beautiful.
+
+MatRepr formats matrices to HTML, string, and LaTeX, with Jupyter integration.
 
 * **SciPy** - sparse matrices and arrays like `csr_matrix` and `coo_array`
+* **NumPy** - `ndarray`
 * **[Python-graphblas](https://github.com/python-graphblas/python-graphblas)** - `gb.Matrix` and `gb.Vector` [(demo)](doc/demo-python-graphblas.ipynb)
 * **[PyData/Sparse](https://sparse.pydata.org/)** - `COO`, `DOK`, `GCXS` [(demo)](doc/demo-pydata-sparse.ipynb)
-* **NumPy** - `ndarray`
-* `list`, `tuple`, including multi-dimensional and jagged
+* `list`, `tuple`, including multi-dimensional and ragged
 
 Features:
 * Jupyter extension to format matrices in cell outputs.
@@ -46,7 +48,7 @@ from matrepr import mdisplay, mprint
 ### String
 
 ```
-1000×1000, 212345 'float64' elements, coo
+<1000×1000, 212345 'float64' elements, coo>
       0       1       2       3       4       5        6       7
   ┌                                                                      ┐
 0 │                                 0.3876                           ... │
@@ -66,13 +68,13 @@ from matrepr import mdisplay, mprint
 or simply `A` with monkey patching as below
 
 ### HTML
-![HTML](doc/images/html.png)
+<img src="doc/images/html.png" width=400 alt="HTML screenshot"/>
 
 `mdisplay(A)`, `to_html(A)`  
 or simply `A` with Jupyter extension `%load_ext matrepr`
 
 ### LaTeX
-![LaTeX](doc/images/latex.png)
+<img src="doc/images/latex.png" width=432 alt="LaTeX screenshot"/>
 
 `mdisplay(A, 'latex')`, `to_latex(A)`  
 or simply `A` with Jupyter extension `%load_ext matrepr.latex`
@@ -125,14 +127,14 @@ Example:
 	with 8 stored elements in COOrdinate format>
 >>> import matrepr.patch.scipy
 >>> a
-4×4, 8 'float64' elements, coo
-        0        1        2        3
-    ┌                                   ┐
-  0 │ 0.4016                     0.4412 │
-  1 │ 0.309    0.8055                   │
-  2 │                   0.1982          │
-  3 │ 0.7438   0.6938            0.2215 │
-    └                                   ┘
+<4×4, 8 'float64' elements, coo>
+      0       1        2        3
+  ┌                                  ┐
+0 │ 0.6536          0.008388  0.6564 │
+1 │                                  │
+2 │         0.2987   0.8098          │
+3 │ 0.1064  0.9613   0.7477          │
+  └                                  ┘
 ```
 
 ## Arguments
@@ -179,6 +181,6 @@ Each package that MatRepr supports implements two classes:
   * `MatrixAdapterCol`: for structs able to efficiently read a selected column.
   * `MatrixAdapterCoo`: for structs able to extract a portion of the matrix as tuples.
 
-See [matrepr/adapters](matrepr/adapters) for details.
+See [matrepr.adapters](matrepr/adapters) module for details.
 
 You may use `matspy.register_driver` to register a Driver for your own matrix class.
