@@ -23,6 +23,8 @@ class GraphBLASDriver(Driver):
             ("graphblas.core.infix.MatrixMatMulExpr", True),
             ("graphblas.core.vector.VectorExpression", True),
             ("graphblas.core.matrix.MatrixExpression", True),
+            ("graphblas.core.vector.VectorIndexExpr", True),
+            ("graphblas.core.matrix.MatrixIndexExpr", True),
         ]
 
     @staticmethod
