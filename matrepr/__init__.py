@@ -5,12 +5,15 @@
 import dataclasses
 from dataclasses import dataclass, asdict
 from shutil import get_terminal_size
-from typing import Any, Type, Callable, Dict, List, Union, Iterable, Optional
+from typing import Any, Type, Callable, Dict, List, Union, Mapping, Optional
 
 from .adapters import Driver, MatrixAdapter
 from .html_formatter import HTMLTableFormatter, NotebookHTMLFormatter
 from .latex_formatter import LatexFormatter, python_scientific_to_latex_times10
 from matrepr.html import load_ipython_extension, unload_ipython_extension
+
+
+AUTO = "auto"
 
 
 @dataclass
@@ -87,11 +90,11 @@ class MatReprParams:
     notation: :raw:`1e22` becomes :raw:`1 \\times 10^{22}`
     """
 
-    row_labels: Iterable[str] = None
-    """Labels for matrix rows. If None then use row index."""
+    row_labels: Union[Mapping[int, Any], bool] = AUTO
+    """Labels for matrix rows. Default uses row index, False disables row labels."""
 
-    col_labels: Iterable[str] = None
-    """Labels for matrix columns. If None then use column index."""
+    col_labels: Union[Mapping[int, Any], bool] = AUTO
+    """Labels for matrix columns. Default uses column index, False disables column labels."""
 
     def set_precision(self, precision, g=True):
         """
@@ -140,7 +143,7 @@ class MatReprParams:
 
         # compute automatic values
         if kwargs.get("auto_width_str", False):
-            if "max_cols" not in kwargs and "width_str" not in kwargs:
+            if "max_cols" not in kwargs and ret.width_str is None:
                 # user did not explicitly specify a width
                 ret.width_str = 0
                 ret.max_cols = 999
@@ -209,9 +212,9 @@ def _get_adapter(mat: Any, options: Optional[MatReprParams], unsupported_raise=T
         if not adapter and unsupported_raise:
             raise AttributeError("Unsupported matrix")
 
-    if options and options.row_labels:
+    if options and options.row_labels is not AUTO:
         adapter.row_labels = options.row_labels
-    if options and options.col_labels:
+    if options and options.col_labels is not AUTO:
         adapter.col_labels = options.col_labels
     return adapter
 

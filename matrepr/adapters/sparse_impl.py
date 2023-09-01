@@ -45,8 +45,9 @@ class PyDataSparseBase:
 class PyDataSparse1DAdapter(PyDataSparseBase, MatrixAdapterRow):
     def __init__(self, mat):
         assert mat.ndim <= 1
-        super(MatrixAdapterRow, self).__init__()
-        super().__init__(mat)
+        MatrixAdapterRow.__init__(self)
+        PyDataSparseBase.__init__(self, mat)
+        self.row_labels = False
 
     def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Any]:
         assert row_idx == 0
@@ -59,8 +60,8 @@ class PyDataSparse1DAdapter(PyDataSparseBase, MatrixAdapterRow):
 class PyDataSparse2DAdapter(PyDataSparseBase, MatrixAdapterCoo):
     def __init__(self, mat):
         assert mat.ndim == 2
-        super(MatrixAdapterCoo, self).__init__()
-        super().__init__(mat)
+        MatrixAdapterCoo.__init__(self)
+        PyDataSparseBase.__init__(self, mat)
 
     def get_coo(self, row_range: Tuple[int, int], col_range: Tuple[int, int]) -> Iterable[Tuple[int, int, Any]]:
         ret = COO(self.mat[slice(*row_range), slice(*col_range)])
@@ -71,8 +72,8 @@ class PyDataSparse2DAdapter(PyDataSparseBase, MatrixAdapterCoo):
 
 class PyDataSparseNDAdapter(PyDataSparseBase, TensorAdapterCooRow):
     def __init__(self, mat):
-        super(TensorAdapterCooRow, self).__init__()
-        super().__init__(mat)
+        PyDataSparseBase.__init__(self, mat)
+        TensorAdapterCooRow.__init__(self)
         self.coo = sparse.as_coo(mat)
 
     def get_shape(self) -> tuple:

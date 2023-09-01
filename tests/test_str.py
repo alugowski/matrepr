@@ -91,6 +91,20 @@ class ToStrTests(unittest.TestCase):
         custom = to_str(mat, title=title)
         self.assertIn(title, custom)
 
+    def test_label_switch(self):
+        mat = generate_fixed_value(4, 4)
+        yy = to_str(mat, title=False, row_labels=True, col_labels=True)
+        yn = to_str(mat, title=False, row_labels=True, col_labels=False)
+        ny = to_str(mat, title=False, row_labels=False, col_labels=True)
+        nn = to_str(mat, title=False, row_labels=False, col_labels=False)
+        lyy = len(yy.split("\n"))
+        lyn = len(yn.split("\n"))
+        lny = len(ny.split("\n"))
+        lnn = len(nn.split("\n"))
+        self.assertEqual(lny, lyy)
+        self.assertEqual(lyn, lnn)
+        self.assertLess(lnn, lyy)
+
     def test_tablefmt(self):
         mat = generate_fixed_value(11, 11)
 
