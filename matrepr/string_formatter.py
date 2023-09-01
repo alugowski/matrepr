@@ -189,7 +189,8 @@ def _to_tabulate_args(mat: Any, is_tensor, options, tab_extra_args) -> Tuple[Dic
         matrix_format = tab_extra_args["tablefmt"]
     elif adapter.get_shape()[0] == 1 and not adapter.has_row_labels():
         # horizontal vector
-        matrix_format = row_vector_table_format if options.indices and adapter.has_col_labels() else row_vector_comma_table_format
+        matrix_format = row_vector_table_format \
+            if options.indices and adapter.has_col_labels() else row_vector_comma_table_format
     else:
         # matrix
         if is_tensor:
@@ -209,6 +210,17 @@ def _to_tabulate_args(mat: Any, is_tensor, options, tab_extra_args) -> Tuple[Dic
     else:
         floatfmt = f".{options.precision}g"
 
+    # column alignment
+    index_cols = set(mat.columns_as_index())
+    index_align = "right"
+    if len(data) == 0:
+        ncols = 0
+    elif isinstance(data[0], list):
+        ncols = len(data[0])
+    else:
+        ncols = len(data)
+    colalign = [index_align if idx in index_cols else options.cell_align for idx in range(ncols)]
+
     # base arguments
     tab_args = {
         "tabular_data": data,
@@ -216,7 +228,7 @@ def _to_tabulate_args(mat: Any, is_tensor, options, tab_extra_args) -> Tuple[Dic
         "showindex": False,
         "tablefmt": matrix_format,
         "floatfmt": floatfmt,
-        "colalign": [options.cell_align] * len(col_labels) if col_labels else None,
+        "colalign": colalign,
         **tab_extra_args
     }
 

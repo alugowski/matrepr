@@ -123,6 +123,8 @@ class LatexFormatter(BaseFormatter):
             mat.apply_dots(unicode_dots)
 
         nrows, ncols = mat.get_shape()
+        index_cols = set(mat.columns_as_index())
+
         self.write("\\begin{" + matrix_env + "}", indent=indent)
 
         body_indent = indent + self.indent_width
@@ -133,7 +135,7 @@ class LatexFormatter(BaseFormatter):
 
             col_range = (0, ncols)
             for col_idx, cell in enumerate(mat.get_dense_row(row_idx, col_range=col_range)):
-                row_contents.append(self.pprint(cell))
+                row_contents.append(self.pprint(cell, is_index=(col_idx in index_cols)))
 
                 if col_idx == col_range[1] - 1:
                     if row_idx != nrows - 1:

@@ -132,9 +132,12 @@ class PyDataSparseTests(unittest.TestCase):
         self.assertIn(f"<th>val</th>", res)
         self.assertIn(f" val", res_str)
 
+        # ensure tabular formatting does not have ugly spacing
+        self.assertNotIn(" ,", res_str)
+
     def test_truncate_3d(self):
         values = [111, 222]
-        mat = sparse.COO(coords=[[0, 1], [3, 2], [1, 3]], data=values, shape=(5, 5, 5))
+        mat = sparse.COO(coords=[[0, 10], [30, 2], [1, 30]], data=values, shape=(50, 50, 50))
 
         res = to_html(mat, notebook=False, max_rows=30, max_cols=3, num_after_dots=1)
         res_str = to_str(mat, max_rows=30, max_cols=3, num_after_dots=1)
@@ -149,6 +152,16 @@ class PyDataSparseTests(unittest.TestCase):
 
         self.assertIn(f"<th>val</th>", res)
         self.assertIn(f" val", res_str)
+
+    def test_no_comma_space(self):
+        # ensure tabular formatting does not have ugly spacing
+        mat = sparse.random((1000, 100, 10), density=.01)
+        res_str = to_str(mat, col_labels=True, max_rows=20, max_cols=20)
+        self.assertIn(f" val", res_str)
+        self.assertNotIn(" ,", res_str)
+
+        res_str = to_str(mat, col_labels=False, max_rows=20, max_cols=20)
+        self.assertNotIn(" ,", res_str)
 
     def test_patch_sparse(self):
         source_mat = sparse.COO(coords=[1, 4, 6], data=[11, 44, 222], shape=(10,))
