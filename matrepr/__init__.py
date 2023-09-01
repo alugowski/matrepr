@@ -46,6 +46,12 @@ class MatReprParams:
     Note: May be set to 0 for very large matrices without fast row/column indexing.
     """
 
+    fill_value: Any = None
+    """
+    Represents the value to print when a sparse matrix does not specify a value (i.e. implicit zero). Setting a
+    `fill_value` will emit a dense output.
+    """
+
     cell_align: str = "center"
     """Horizontal text alignment for non-zero values."""
 

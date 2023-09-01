@@ -116,6 +116,7 @@ All methods take the same arguments. Apart from the matrix itself:
 * `max_rows`, `max_rows`: size of table. Matrices larger than this are truncated with ellipses.
 * `precision`: floating-point precision
 * `num_after_dots`: How many rows/columns to show from the end of the matrix if the entire matrix does not fit.
+* `fill_value`: Value to fill empty cells.
 
 #### Overriding defaults
 `matrepr.params` contains the default values for all arguments.

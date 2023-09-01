@@ -118,6 +118,11 @@ class ToHTMLTests(unittest.TestCase):
         custom = to_html(mat, title=title)
         self.assertIn(title, custom)
 
+    def test_fill_value(self):
+        mat = scipy.sparse.coo_matrix(([1.0], ([0], [0])), shape=(2, 2))
+        res = to_html(mat, fill_value="VALUE")
+        self.assertEqual(3, res.count(">VALUE<"))
+
 
 if __name__ == '__main__':
     unittest.main()

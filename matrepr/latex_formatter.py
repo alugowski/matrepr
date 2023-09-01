@@ -50,12 +50,13 @@ unicode_to_latex = {
 
 class LatexFormatter(BaseFormatter):
     def __init__(self, max_rows, max_cols, num_after_dots, title_latex, latex_matrix_env, latex_tensor_env,
-                 floatfmt_latex=None, latex_dupe_matrix_env="Bmatrix", **_):
+                 floatfmt_latex=None, latex_dupe_matrix_env="Bmatrix", fill_value=None, **_):
         super().__init__()
         self.max_rows = max_rows
         self.max_cols = max_cols
         self.num_after_dots = num_after_dots
         self.title = title_latex
+        self.fill_value = fill_value
         self.latex_matrix_env = latex_matrix_env
         self.latex_tensor_env = latex_tensor_env
         self.dupe_env = latex_dupe_matrix_env
@@ -66,7 +67,10 @@ class LatexFormatter(BaseFormatter):
 
     def pprint(self, obj, is_index=False):
         if obj is None:
-            return ""
+            if self.fill_value is None:
+                return ""
+            else:
+                obj = self.fill_value
 
         if is_index and isinstance(obj, int):
             return int(obj)
@@ -105,6 +109,7 @@ class LatexFormatter(BaseFormatter):
             fmt = LatexFormatter(max_rows=max(self.max_rows / 2, 2),
                                  max_cols=max(self.max_cols / 2, 2),
                                  num_after_dots=0, title_latex=None,
+                                 fill_value=self.fill_value,
                                  latex_matrix_env=self.latex_matrix_env,
                                  latex_tensor_env=self.latex_tensor_env,
                                  latex_dupe_matrix_env=self.dupe_env,
@@ -128,8 +133,7 @@ class LatexFormatter(BaseFormatter):
 
             col_range = (0, ncols)
             for col_idx, cell in enumerate(mat.get_dense_row(row_idx, col_range=col_range)):
-                if cell is not None:
-                    row_contents.append(self.pprint(cell))
+                row_contents.append(self.pprint(cell))
 
                 if col_idx == col_range[1] - 1:
                     if row_idx != nrows - 1:

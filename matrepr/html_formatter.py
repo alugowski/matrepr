@@ -21,7 +21,7 @@ unicode_to_html = {
 
 class HTMLTableFormatter(BaseFormatter):
     def __init__(self, max_rows, max_cols, num_after_dots, title, indices=False, cell_align="center",
-                 floatfmt=None, **_):
+                 floatfmt=None, fill_value=None, **_):
         super().__init__()
         self.max_rows = max_rows
         self.max_cols = max_cols
@@ -29,6 +29,7 @@ class HTMLTableFormatter(BaseFormatter):
         self.title = title
         self.indices = indices
         self.cell_align = cell_align
+        self.fill_value = fill_value
         self.floatfmt = floatfmt if floatfmt else lambda f: format(f)
         self.indent_width = 4
         self.bake_cell_align = False
@@ -46,7 +47,10 @@ class HTMLTableFormatter(BaseFormatter):
 
     def pprint(self, obj, current_indent=0, is_index=False):
         if obj is None:
-            return ""
+            if self.fill_value is None:
+                return ""
+            else:
+                obj = self.fill_value
 
         if is_index and isinstance(obj, int):
             return int(obj)
