@@ -99,22 +99,19 @@ class HTMLTableFormatter(BaseFormatter):
         body_indent = indent + self.indent_width
         cell_indent = body_indent + self.indent_width
 
-        row_labels = mat.get_row_labels() if self.indices else None
-        row_labels = iter(row_labels) if row_labels else None
-
         # Title
         if self.title:
             self.write(f"<caption>{self.title}</caption>")
 
         # Header
-        if self.indices:
+        if self.indices and mat.has_col_labels():
             self.write(f'<thead>', indent=body_indent)
             self.write("<tr>", indent=body_indent)
-            if row_labels:
+            if mat.has_row_labels():
                 self.write(f"<th></th>", indent=cell_indent)
-            for col_label in mat.get_col_labels():
+            for idx in range(ncols):
                 attr = ' style="text-align: center;"' if self.center_header else ""
-                self.write(f"<th{attr}>{self.pprint(col_label, is_index=True)}</th>", indent=cell_indent)
+                self.write(f"<th{attr}>{self.pprint(mat.get_col_label(idx), is_index=True)}</th>", indent=cell_indent)
             self.write("</tr>", indent=body_indent)
             self.write("</thead>", indent=body_indent)
 
@@ -122,8 +119,8 @@ class HTMLTableFormatter(BaseFormatter):
         self.write("<tbody>", indent=body_indent)
         for row_idx in range(nrows):
             self.write("<tr>", body_indent)
-            if row_labels:
-                self.write(f"<th>{self.pprint(next(row_labels), is_index=True)}</th>", cell_indent)
+            if mat.has_row_labels():
+                self.write(f"<th>{self.pprint(mat.get_row_label(row_idx), is_index=True)}</th>", cell_indent)
 
             col_range = (0, ncols)
             for col_idx, cell in enumerate(mat.get_dense_row(row_idx, col_range=col_range)):

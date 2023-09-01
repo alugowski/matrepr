@@ -23,8 +23,8 @@ class SciPyAdapter:
 
 class SciPyCSRAdapter(SciPyAdapter, MatrixAdapterRow):
     def __init__(self, mat: scipy.sparse.csr_matrix):
-        super(MatrixAdapterRow, self).__init__()
-        super().__init__(mat)
+        MatrixAdapterRow.__init__(self)
+        SciPyAdapter.__init__(self, mat)
 
     def get_row(self, row_idx: int, col_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
         start = self.mat.indptr[row_idx]
@@ -39,8 +39,8 @@ class SciPyCSRAdapter(SciPyAdapter, MatrixAdapterRow):
 
 class SciPyCSCAdapter(SciPyAdapter, MatrixAdapterCol):
     def __init__(self, mat: scipy.sparse.csc_matrix):
-        super(MatrixAdapterCol, self).__init__()
-        super().__init__(mat)
+        MatrixAdapterCol.__init__(self)
+        SciPyAdapter.__init__(self, mat)
 
     def get_col(self, col_idx: int, row_range: Tuple[int, int]) -> Iterable[Tuple[int, Any]]:
         start = self.mat.indptr[col_idx]
@@ -55,8 +55,8 @@ class SciPyCSCAdapter(SciPyAdapter, MatrixAdapterCol):
 
 class SciPyCOOAdapter(SciPyAdapter, MatrixAdapterCoo):
     def __init__(self, mat: scipy.sparse.coo_matrix):
-        super(MatrixAdapterCoo, self).__init__()
-        super().__init__(mat)
+        MatrixAdapterCoo.__init__(self)
+        SciPyAdapter.__init__(self, mat)
 
     def get_coo(self, row_range: Tuple[int, int], col_range: Tuple[int, int]) -> Iterable[Tuple[int, int, Any]]:
         mask = (self.mat.row >= row_range[0]) & (self.mat.row < row_range[1]) & \

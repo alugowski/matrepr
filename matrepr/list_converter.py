@@ -32,12 +32,6 @@ def _single_line(s: str) -> str:
     return " ".join(lines)
 
 
-def _to_str(iterable) -> Optional[List]:
-    if iterable is None:
-        return None
-    return [None if x is None else str(x) for x in iterable]
-
-
 class ListConverter:
     def __init__(self, max_rows, max_cols, num_after_dots, floatfmt, **_):
         super().__init__()
@@ -49,9 +43,12 @@ class ListConverter:
         self.replace_newline_char = " "
         self.use_fixed_width_dots = True
 
-    def pprint(self, obj):
+    def pprint(self, obj, is_index=False):
         if obj is None:
             return self.empty_cell
+
+        if isinstance(obj, int) and is_index:
+            return str(obj)
 
         if isinstance(obj, (int, float)):
             formatted = self.floatfmt(obj)
@@ -85,7 +82,7 @@ class ListConverter:
                 return unicode_to_fixed_width[obj]
             if obj in unicode_dots.values():
                 return obj
-            return repr(obj)
+            return obj if is_index else repr(obj)
 
         if isinstance(obj, DupeList):
             return [self.pprint(sub) for sub in obj]
@@ -119,6 +116,18 @@ class ListConverter:
             ret.append(row)
         return ret[0] if is_vector else ret
 
+    def _gen_row_labels(self, mat: MatrixAdapter) -> Optional[List]:
+        if not mat.has_row_labels():
+            return None
+        raw = [self.pprint(mat.get_row_label(idx), is_index=True) for idx in range(mat.get_shape()[0])]
+        return [None if idx is None else str(idx) for idx in raw]
+
+    def _gen_col_labels(self, mat: MatrixAdapter) -> Optional[List]:
+        if not mat.has_col_labels():
+            return None
+        raw = [self.pprint(mat.get_col_label(idx), is_index=True) for idx in range(mat.get_shape()[1])]
+        return [None if idx is None else str(idx) for idx in raw]
+
     def to_lists_and_labels(self, mat: MatrixAdapter, is_1d_ok=True):
         is_vector = is_1d_ok and len(mat.get_shape()) == 1
         if not isinstance(mat, MatrixAdapterRow) or \
@@ -127,6 +136,4 @@ class ListConverter:
                 mat.get_shape()[1] > self.max_cols:
             mat = to_trunc(mat, self.max_rows, self.max_cols, self.num_after_dots)
 
-        return self._write_matrix(mat, is_vector=is_vector),\
-            _to_str(mat.get_row_labels()),\
-            _to_str(mat.get_col_labels())
+        return self._write_matrix(mat, is_vector=is_vector), self._gen_row_labels(mat), self._gen_col_labels(mat)

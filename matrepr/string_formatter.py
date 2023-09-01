@@ -187,11 +187,11 @@ def _to_tabulate_args(mat: Any, is_tensor, options, tab_extra_args) -> Tuple[Dic
     # determine the table format
     if "tablefmt" in tab_extra_args:
         matrix_format = tab_extra_args["tablefmt"]
-    elif not row_labels:
+    elif adapter.get_shape()[0] == 1 and not adapter.has_row_labels():
         # horizontal vector
-        matrix_format = row_vector_table_format if options.indices else row_vector_comma_table_format
+        matrix_format = row_vector_table_format if options.indices and adapter.has_col_labels() else row_vector_comma_table_format
     else:
-        # matrix without row indices (column indices ok)
+        # matrix
         if is_tensor:
             matrix_format = tensor_table_format
         else:
@@ -199,8 +199,9 @@ def _to_tabulate_args(mat: Any, is_tensor, options, tab_extra_args) -> Tuple[Dic
 
     # render the row indices
     row_labels_txt = None
-    if options.indices and row_labels:
-        row_labels_txt = _format_row_labels(_labels_to_str(row_labels), has_header=options.indices, tf=matrix_format)
+    has_header = options.indices and col_labels
+    if options.indices and adapter.has_row_labels():
+        row_labels_txt = _format_row_labels(_labels_to_str(row_labels), has_header=has_header, tf=matrix_format)
 
     # collect floatfmt argument
     if isinstance(options.floatfmt, str):
@@ -211,11 +212,11 @@ def _to_tabulate_args(mat: Any, is_tensor, options, tab_extra_args) -> Tuple[Dic
     # base arguments
     tab_args = {
         "tabular_data": data,
-        "headers": _labels_to_str(col_labels) if options.indices else (),
+        "headers": _labels_to_str(col_labels) if has_header else (),
         "showindex": False,
         "tablefmt": matrix_format,
         "floatfmt": floatfmt,
-        "colalign": [options.cell_align] * len(col_labels),
+        "colalign": [options.cell_align] * len(col_labels) if col_labels else None,
         **tab_extra_args
     }
 
