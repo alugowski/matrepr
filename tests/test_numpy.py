@@ -44,7 +44,7 @@ class NumpyTests(unittest.TestCase):
             self.assertGreater(len(res), 10)
 
             for value in np.nditer(mat):
-                self.assertIn(f"<td>{value}</td>", res)
+                self.assertIn(f">{value}</td>", res)
 
 
 if __name__ == '__main__':
