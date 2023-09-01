@@ -218,10 +218,11 @@ def _get_adapter(mat: Any, options: Optional[MatReprParams], unsupported_raise=T
         if not adapter and unsupported_raise:
             raise AttributeError("Unsupported matrix")
 
-    if options and options.row_labels is not AUTO:
-        adapter.row_labels = options.row_labels
-    if options and options.col_labels is not AUTO:
-        adapter.col_labels = options.col_labels
+    if options:
+        if options.row_labels is not AUTO and options.row_labels is not True:
+            adapter.row_labels = options.row_labels
+        if options.col_labels is not AUTO and options.col_labels is not True:
+            adapter.col_labels = options.col_labels
     return adapter
 
 

@@ -91,7 +91,17 @@ class MatrixAdapter(ABC):
 
     # noinspection PyMethodMayBeStatic
     def is_tensor(self) -> bool:
+        """
+        If True then use tensor styling.
+        """
         return False
+
+    # noinspection PyMethodMayBeStatic
+    def columns_as_index(self) -> List[int]:
+        """
+        :return: list of columns that should be formatted as indices.
+        """
+        return []
 
 
 class MatrixAdapterRow(MatrixAdapter):
@@ -202,6 +212,13 @@ class TensorAdapterCooRow(MatrixAdapterRow):
     def is_tensor(self) -> bool:
         return True
 
+    def columns_as_index(self) -> List[int]:
+        """
+        :return: list of columns that should be formatted as indices.
+        """
+        # only the last column is values
+        return list(range(self.get_shape()[1] - 1))
+
 
 class Driver(ABC):
     @staticmethod
@@ -231,9 +248,12 @@ class Truncated2DMatrix(MatrixAdapterRow):
     - Convert any adapter to a :class:`MatrixAdapterRow`.
     - If a matrix is too large then supports showing just the corners with ellipses designating the truncated portions.
     """
-    def __init__(self, orig_shape: Tuple[int, int], display_shape: Tuple[int, int],
+    def __init__(self, orig_mat: MatrixAdapter, display_shape: Tuple[int, int],
                  row_labels, col_labels, num_after_dots=2, description=None):
         super().__init__()
+        self.orig_mat = orig_mat
+
+        orig_shape = orig_mat.get_shape()
         self.show_row_labels = len(orig_shape) != 1
         if len(orig_shape) == 1:
             orig_shape = (1, orig_shape[0])
@@ -388,6 +408,20 @@ class Truncated2DMatrix(MatrixAdapterRow):
 
         return self.display_shape[1]
 
+    def columns_as_index(self) -> List[int]:
+        orig = self.orig_mat.columns_as_index()
+        if self.dot_col is None:
+            return orig
+
+        ret = []
+        _, post_dot_start = self.get_dot_indices_col()
+        for idx in orig:
+            if idx < self.dot_col:
+                ret.append(idx)
+            elif idx > self.dot_col:
+                ret.append(post_dot_start + (idx - self.dot_col - 1))
+        return ret
+
 
 def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncated2DMatrix:
     """
@@ -409,7 +443,7 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
         raise ValueError("Only 1 or 2 dimensional matrices supported at this time.")
 
     if nrows == 0 or ncols == 0:
-        return Truncated2DMatrix(orig_shape=mat.get_shape(),
+        return Truncated2DMatrix(mat,
                                  display_shape=(max_rows, max_cols),
                                  num_after_dots=0,
                                  row_labels=mat.row_labels,
@@ -430,7 +464,7 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
             num_after_dots = 0
 
         if num_after_dots == 0:
-            trunc = Truncated2DMatrix(orig_shape=mat.get_shape(),
+            trunc = Truncated2DMatrix(mat,
                                       display_shape=(max_rows, max_cols),
                                       num_after_dots=0,
                                       row_labels=mat.row_labels,
@@ -439,7 +473,7 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
             for row, col, val in top_left:
                 trunc.set(row, col, val)
         else:
-            trunc = Truncated2DMatrix(orig_shape=mat.get_shape(),
+            trunc = Truncated2DMatrix(mat,
                                       display_shape=(max_rows, max_cols),
                                       num_after_dots=num_after_dots,
                                       row_labels=mat.row_labels,
@@ -464,7 +498,7 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
         return trunc
 
     if isinstance(mat, MatrixAdapterRow):
-        trunc = Truncated2DMatrix(orig_shape=mat.get_shape(),
+        trunc = Truncated2DMatrix(mat,
                                   display_shape=(max_rows, max_cols),
                                   num_after_dots=num_after_dots,
                                   row_labels=mat.row_labels,
@@ -486,7 +520,7 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
         return trunc
 
     if isinstance(mat, MatrixAdapterCol):
-        trunc = Truncated2DMatrix(orig_shape=mat.get_shape(),
+        trunc = Truncated2DMatrix(mat,
                                   display_shape=(max_rows, max_cols),
                                   num_after_dots=num_after_dots,
                                   row_labels=mat.row_labels,

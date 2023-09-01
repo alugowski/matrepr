@@ -98,6 +98,7 @@ class HTMLTableFormatter(BaseFormatter):
             mat.apply_dots(unicode_dots)
 
         nrows, ncols = mat.get_shape()
+        index_cols = set(mat.columns_as_index())
         self.write(f"<table{self._attributes_to_string(self.table_attributes)}>", indent=indent)
 
         body_indent = indent + self.indent_width
@@ -108,6 +109,7 @@ class HTMLTableFormatter(BaseFormatter):
             self.write(f"<caption>{self.title}</caption>")
 
         attr_align = f' style="text-align: {self.cell_align};"' if self.bake_cell_align else ""
+        idx_align = f' style="text-align: right;"' if self.bake_cell_align else ""
         # Header
         if self.indices and mat.has_col_labels():
             self.write(f'<thead>', indent=body_indent)
@@ -115,7 +117,8 @@ class HTMLTableFormatter(BaseFormatter):
             if mat.has_row_labels():
                 self.write(f"<th></th>", indent=cell_indent)
             for idx in range(ncols):
-                self.write(f"<th{attr_align}>{self.pprint(mat.get_col_label(idx), is_index=True)}</th>",
+                align = idx_align if idx in index_cols else attr_align
+                self.write(f"<th{align}>{self.pprint(mat.get_col_label(idx), is_index=True)}</th>",
                            indent=cell_indent)
             self.write("</tr>", indent=body_indent)
             self.write("</thead>", indent=body_indent)
@@ -129,7 +132,9 @@ class HTMLTableFormatter(BaseFormatter):
 
             col_range = (0, ncols)
             for col_idx, cell in enumerate(mat.get_dense_row(row_idx, col_range=col_range)):
-                self.write(f"<td{attr_align}>{self.pprint(cell, cell_indent)}</td>", cell_indent)
+                align = idx_align if col_idx in index_cols else attr_align
+                self.write(f"<td{align}>{self.pprint(cell, cell_indent, is_index=(col_idx in index_cols))}</td>",
+                           indent=cell_indent)
 
             self.write("</tr>", body_indent)
 
