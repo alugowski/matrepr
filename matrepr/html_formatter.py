@@ -31,7 +31,7 @@ class HTMLTableFormatter(BaseFormatter):
         self.cell_align = cell_align
         self.floatfmt = floatfmt if floatfmt else lambda f: format(f)
         self.indent_width = 4
-        self.center_header = False
+        self.bake_cell_align = False
         self.table_attributes = {}
 
     # noinspection PyMethodMayBeStatic
@@ -103,6 +103,7 @@ class HTMLTableFormatter(BaseFormatter):
         if self.title:
             self.write(f"<caption>{self.title}</caption>")
 
+        attr_align = f' style="text-align: {self.cell_align};"' if self.bake_cell_align else ""
         # Header
         if self.indices and mat.has_col_labels():
             self.write(f'<thead>', indent=body_indent)
@@ -110,8 +111,8 @@ class HTMLTableFormatter(BaseFormatter):
             if mat.has_row_labels():
                 self.write(f"<th></th>", indent=cell_indent)
             for idx in range(ncols):
-                attr = ' style="text-align: center;"' if self.center_header else ""
-                self.write(f"<th{attr}>{self.pprint(mat.get_col_label(idx), is_index=True)}</th>", indent=cell_indent)
+                self.write(f"<th{attr_align}>{self.pprint(mat.get_col_label(idx), is_index=True)}</th>",
+                           indent=cell_indent)
             self.write("</tr>", indent=body_indent)
             self.write("</thead>", indent=body_indent)
 
@@ -119,12 +120,12 @@ class HTMLTableFormatter(BaseFormatter):
         self.write("<tbody>", indent=body_indent)
         for row_idx in range(nrows):
             self.write("<tr>", body_indent)
-            if mat.has_row_labels():
+            if self.indices and mat.has_row_labels():
                 self.write(f"<th>{self.pprint(mat.get_row_label(row_idx), is_index=True)}</th>", cell_indent)
 
             col_range = (0, ncols)
             for col_idx, cell in enumerate(mat.get_dense_row(row_idx, col_range=col_range)):
-                self.write(f"<td>{self.pprint(cell, cell_indent)}</td>", cell_indent)
+                self.write(f"<td{attr_align}>{self.pprint(cell, cell_indent)}</td>", cell_indent)
 
             self.write("</tr>", body_indent)
 
@@ -201,7 +202,7 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
             (thead, {"border": "0px"}),
             (tbody + "tr th", {**index_attributes, "text-align": "right"}),  # row indices
             (thead + "tr th", {**index_attributes, "text-align": "center"}),  # column indices
-            (tbody + "tr td", {"vertical-align": "middle", "text-align": self.cell_align, "position": "relative"}),
+            (tbody + "tr td", {"vertical-align": "middle", "text-align": "center", "position": "relative"}),
             (tbody + "tr td:first-of-type", {"border-left": border}),  # left border
             (tbody + "tr td:last-of-type", {"border-right": border}),  # right border
             # need two of these because ticks may narrow down one of them
@@ -236,7 +237,7 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
         if write_div:
             self.write("<div>")
             self._write_style(matrix_class=matrix_class, tensor_class=tensor_class)
-        self.center_header = True
+        self.bake_cell_align = True
         super().format(mat, indent=indent)
         if write_div:
             self.write("</div>")
