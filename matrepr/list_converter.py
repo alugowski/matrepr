@@ -33,19 +33,22 @@ def _single_line(s: str) -> str:
 
 
 class ListConverter:
-    def __init__(self, max_rows, max_cols, num_after_dots, floatfmt, **_):
+    def __init__(self, max_rows, max_cols, num_after_dots, floatfmt, fill_value=None, **_):
         super().__init__()
         self.max_rows = max_rows
         self.max_cols = max_cols
         self.num_after_dots = num_after_dots
         self.floatfmt = floatfmt
-        self.empty_cell = ""
+        self.fill_value = fill_value
         self.replace_newline_char = " "
         self.use_fixed_width_dots = True
 
     def pprint(self, obj, is_index=False):
         if obj is None:
-            return self.empty_cell
+            if self.fill_value is None:
+                return ""
+            else:
+                obj = self.fill_value
 
         if isinstance(obj, int) and is_index:
             return str(obj)
@@ -93,6 +96,7 @@ class ListConverter:
             fmt = ListConverter(max_rows=max(self.max_rows / 2, 2),
                                 max_cols=max(self.max_cols / 2, 2),
                                 num_after_dots=0,
+                                fill_value=self.fill_value,
                                 floatfmt=self.floatfmt)
             ret, _, _ = fmt.to_lists_and_labels(adapter)
             return ret
@@ -109,7 +113,7 @@ class ListConverter:
 
         # values
         for row_idx in range(nrows):
-            row = [self.empty_cell] * ncols
+            row = [self.pprint(self.fill_value)] * ncols
             for col_idx, cell in mat.get_row(row_idx, col_range=(0, ncols)):
                 row[col_idx] = self.pprint(cell)
 

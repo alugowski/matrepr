@@ -57,7 +57,7 @@ class ToLatexTests(unittest.TestCase):
         val = [101, 202, 303]
         mat = scipy.sparse.coo_matrix((val, (row, col)), shape=(5, 5))
 
-        res = to_latex(mat, notebook=False, max_rows=6, max_cols=6)
+        res = to_latex(mat, max_rows=6, max_cols=6)
 
         count = 0
         for value in val:
@@ -76,6 +76,11 @@ class ToLatexTests(unittest.TestCase):
         title = "test title"
         custom = to_latex(mat, title=title)
         self.assertIn(title, custom)
+
+    def test_fill_value(self):
+        mat = scipy.sparse.coo_matrix(([1.0], ([0], [0])), shape=(2, 2))
+        res = to_latex(mat, fill_value="VALUE")
+        self.assertEqual(3, res.count("VALUE"))
 
     def test_precision(self):
         f = 0.123456789

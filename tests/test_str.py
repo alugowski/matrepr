@@ -91,6 +91,11 @@ class ToStrTests(unittest.TestCase):
         custom = to_str(mat, title=title)
         self.assertIn(title, custom)
 
+    def test_fill_value(self):
+        mat = scipy.sparse.coo_matrix(([1.0], ([0], [0])), shape=(2, 2))
+        res = to_str(mat, fill_value="VALUE")
+        self.assertEqual(3, res.count("VALUE"))
+
     def test_label_switch(self):
         mat = generate_fixed_value(4, 4)
         yy = to_str(mat, title=False, row_labels=True, col_labels=True)
