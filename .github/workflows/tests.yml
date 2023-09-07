@@ -35,16 +35,13 @@ jobs:
       if: ${{ !contains(matrix.python-version, 'pypy') }}  # no scipy wheels for pypy
       run: pytest
 
-    - name: Install python-graphblas
+    - name: Install other supported packages
       if: ${{ !contains(matrix.python-version, 'pypy') && matrix.python-version != '3.7' }}  # no wheels for pypy and old python
       run: |
         pip install suitesparse-graphblas==7.4.4.1a1
         pip install python-graphblas
-
-    - name: Install pydata sparse
-      if: ${{ !contains(matrix.python-version, 'pypy') && matrix.python-version != '3.7' }}  # no wheels for pypy and old python
-      run: |
         pip install sparse
+        pip install torch
 
     - name: Python Test without Jupyter
       if: ${{ !contains(matrix.python-version, 'pypy') }}  # no scipy wheels for pypy

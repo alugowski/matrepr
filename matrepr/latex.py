@@ -12,7 +12,7 @@ from . import to_latex, _register_jupyter_formatter
 
 
 def _repr_latex_(mat):
-    return to_latex(mat)
+    return to_latex(mat, fallback_to_None=True)
 
 
 def load_ipython_extension(ipython):
