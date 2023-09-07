@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import unittest
+import warnings
 
 import numpy as np
 
@@ -30,6 +31,9 @@ def generate_fixed_value(m, n):
 @unittest.skipIf(torch is None, "PyTorch not installed")
 class PyTorchTests(unittest.TestCase):
     def setUp(self):
+        # filter beta state warning
+        warnings.filterwarnings("ignore", message="Sparse CSR tensor support is in beta state")
+
         rand2d = torch.rand(50, 30)
         self.rand2d = rand2d[rand2d < 0.6] = 0
 

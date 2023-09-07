@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from typing import Any, Iterable, Tuple
+import warnings
 
 import sparse
 from sparse import COO
@@ -64,7 +65,11 @@ class PyDataSparse2DAdapter(PyDataSparseBase, MatrixAdapterCoo):
         PyDataSparseBase.__init__(self, mat)
 
     def get_coo(self, row_range: Tuple[int, int], col_range: Tuple[int, int]) -> Iterable[Tuple[int, int, Any]]:
-        ret = COO(self.mat[slice(*row_range), slice(*col_range)])
+        with warnings.catch_warnings():
+            # COO will complain about a structure it itself created
+            warnings.simplefilter("ignore", category=DeprecationWarning, lineno=261)
+
+            ret = COO(self.mat[slice(*row_range), slice(*col_range)])
         ret.coords[0] += row_range[0]
         ret.coords[1] += col_range[0]
         return zip(ret.coords[0], ret.coords[1], ret.data)

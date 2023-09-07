@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import unittest
+import warnings
 
 try:
     import sparse
@@ -11,12 +12,12 @@ except ImportError:
 
 from matrepr import to_html, to_latex, to_str
 
-import numpy.random
-numpy.random.seed(123)
+import scipy
+import numpy as np
+np.random.seed(123)
 
 
 def generate_fixed_value(m, n):
-    import scipy
     row_factor = 10**(1+len(str(n)))
     nnz = m*n
     rows, cols, data = [1] * nnz, [1] * nnz, [1] * nnz
@@ -34,15 +35,19 @@ def generate_fixed_value(m, n):
 class PyDataSparseTests(unittest.TestCase):
     def setUp(self):
         self.mats = [
-            sparse.COO([], shape=(0,)),
-            sparse.COO(coords=[1, 4], data=[11, 44], shape=(10,)),
-            sparse.COO([], shape=(0, 0)),
-            sparse.COO([], shape=(10, 10)),
+            sparse.COO(np.array([1])),
+            sparse.COO(coords=np.array([1, 4]), data=np.array([11, 44]), shape=(10,)),
+            sparse.COO(np.empty(shape=(10, 10))),
             sparse.random((10, 10), density=0.4),
             sparse.COO.from_scipy_sparse(generate_fixed_value(10, 10)),
-            sparse.COO(coords=[[0, 0], [0, 0]], data=[111, 222], shape=(13, 13)),
-            sparse.COO(coords=[[0, 1], [3, 2], [1, 3]], data=[111, 222], shape=(5, 5, 5)),
+            sparse.COO(coords=np.array([[0, 0], [0, 0]]), data=np.array([111, 222]), shape=(13, 13)),  # has dupes
+            sparse.COO(coords=np.array([[0, 1], [3, 2], [1, 3]]), data=np.array([111, 222]), shape=(5, 5, 5)),
         ]
+
+        with warnings.catch_warnings():
+            # COO will incorrectly complain that the object is not ndarray when it is.
+            warnings.simplefilter("ignore", category=DeprecationWarning, lineno=261)
+            self.mats.append(sparse.COO(np.empty(shape=(0, 0))))
 
         self.types = [
             sparse.COO,
@@ -86,14 +91,14 @@ class PyDataSparseTests(unittest.TestCase):
 
     def test_contents_1d(self):
         values = [1000, 1001, 1002, 1003, 1004]
-        vec = sparse.COO([0, 1, 2, 3, 4], data=values, shape=(10,))
+        vec = sparse.COO(np.array([0, 1, 2, 3, 4]), data=np.array(values), shape=(10,))
         res = to_html(vec, notebook=False, max_rows=20, max_cols=20, title=True, indices=True)
         for value in values:
             self.assertIn(f"<td>{value}</td>", res)
 
     def test_truncate_1d(self):
         values = [1000, 1001, 1002, 1003, 1009]
-        vec = sparse.COO([0, 1, 2, 3, 9], data=values, shape=(10,))
+        vec = sparse.COO(np.array([0, 1, 2, 3, 9]), data=np.array(values), shape=(10,))
         res = to_html(vec, notebook=False, max_rows=3, max_cols=3, num_after_dots=1, title=True, indices=True)
         for value in [1000, 1009]:
             self.assertIn(f"<td>{value}</td>", res)
@@ -123,7 +128,7 @@ class PyDataSparseTests(unittest.TestCase):
 
     def test_contents_3d(self):
         values = [111, 222]
-        mat = sparse.COO(coords=[[0, 1], [3, 2], [1, 3]], data=values, shape=(5, 5, 5))
+        mat = sparse.COO(coords=np.array([[0, 1], [3, 2], [1, 3]]), data=np.array(values), shape=(5, 5, 5))
         res = to_html(mat, notebook=False, max_rows=20, max_cols=20, title=True, indices=True)
         res_str = to_str(mat)
         for value in values:
@@ -137,7 +142,7 @@ class PyDataSparseTests(unittest.TestCase):
 
     def test_truncate_3d(self):
         values = [111, 222]
-        mat = sparse.COO(coords=[[0, 10], [30, 2], [1, 30]], data=values, shape=(50, 50, 50))
+        mat = sparse.COO(coords=np.array([[0, 10], [30, 2], [1, 30]]), data=np.array(values), shape=(50, 50, 50))
 
         res = to_html(mat, notebook=False, max_rows=30, max_cols=3, num_after_dots=1)
         res_str = to_str(mat, max_rows=30, max_cols=3, num_after_dots=1)
@@ -164,7 +169,7 @@ class PyDataSparseTests(unittest.TestCase):
         self.assertNotIn(" ,", res_str)
 
     def test_patch_sparse(self):
-        source_mat = sparse.COO(coords=[1, 4, 6], data=[11, 44, 222], shape=(10,))
+        source_mat = sparse.COO(coords=np.array([1, 4, 6]), data=np.array([11, 44, 222]), shape=(10,))
 
         # noinspection PyUnresolvedReferences
         import matrepr.patch.sparse

@@ -123,7 +123,7 @@ class ToStrTests(unittest.TestCase):
         mat = [[1, 2], [2000, 300000]]
         left = to_str(mat, colalign=["left", "left"])
         right = to_str(mat, colalign=["right", "right"])
-        self.assertNotEquals(left, right)
+        self.assertNotEqual(left, right)
 
 
 if __name__ == '__main__':
