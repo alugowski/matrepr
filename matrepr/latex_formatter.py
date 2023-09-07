@@ -73,7 +73,7 @@ class LatexFormatter(BaseFormatter):
                 obj = self.fill_value
 
         if is_index and isinstance(obj, int):
-            return int(obj)
+            return str(obj)
 
         if isinstance(obj, (int, float)):
             return self.floatfmt(obj)

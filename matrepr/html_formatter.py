@@ -225,6 +225,7 @@ class NotebookHTMLFormatter(HTMLTableFormatter):
 
             # tensor styles
             (tensor + "caption", {"white-space": "pre", "text-align": "center"}),  # title
+            (tenhead, {"border": "0px"}),
             (tenbody + "tr th", {**index_attributes, "text-align": "right"}),  # row indices
             (tenhead + "tr th", {**index_attributes, "text-align": "center"}),  # column indices
             (tenbody + "tr td", {"vertical-align": "middle", "text-align": self.cell_align, "position": "relative"}),

@@ -7,9 +7,9 @@ from dataclasses import dataclass, asdict
 from shutil import get_terminal_size
 from typing import Any, Type, Callable, Dict, List, Union, Mapping, Optional
 
-from .adapters import Driver, MatrixAdapter
+from .adapters import Driver, MatrixAdapter, FallbackToNative
 from .html_formatter import HTMLTableFormatter, NotebookHTMLFormatter
-from .latex_formatter import LatexFormatter, python_scientific_to_latex_times10
+from .latex_formatter import LatexFormatter, python_scientific_to_latex_times10, tex_escape
 from matrepr.html import load_ipython_extension, unload_ipython_extension
 
 
@@ -194,6 +194,9 @@ def _register_bundled():
     from .adapters.numpy_driver import NumpyDriver
     register_driver(NumpyDriver)
 
+    from .adapters.torch_driver import PyTorchDriver
+    register_driver(PyTorchDriver)
+
     from .adapters.list_like import ListDriver
     register_driver(ListDriver)
 
@@ -226,7 +229,7 @@ def _get_adapter(mat: Any, options: Optional[MatReprParams], unsupported_raise=T
     return adapter
 
 
-def to_html(mat: Any, notebook=False, **kwargs) -> str:
+def to_html(mat: Any, notebook=False, fallback_to_None=False, **kwargs) -> str:
     """
     Render a matrix to HTML.
 
@@ -237,17 +240,26 @@ def to_html(mat: Any, notebook=False, **kwargs) -> str:
     :return: A string containing an HTML representation of `mat`.
     """
     options = params.get(**kwargs)
-    adapter = _get_adapter(mat, options)
 
-    if notebook:
-        formatter = NotebookHTMLFormatter(**options.to_kwargs())
-    else:
-        formatter = HTMLTableFormatter(**options.to_kwargs())
+    try:
+        adapter = _get_adapter(mat, options)
 
-    return str(formatter.format(adapter))
+        if notebook:
+            formatter = NotebookHTMLFormatter(**options.to_kwargs())
+        else:
+            formatter = HTMLTableFormatter(**options.to_kwargs())
+
+        return str(formatter.format(adapter))
+    except FallbackToNative:
+        if hasattr(mat, "_repr_html_"):
+            return getattr(mat, "_repr_html_")()
+        elif fallback_to_None:
+            return None
+        else:
+            return f"<pre>{str(mat)}</pre>"
 
 
-def to_latex(mat: Any, **kwargs):
+def to_latex(mat: Any, fallback_to_None=False, **kwargs):
     """
     Render a matrix to LaTeX.
 
@@ -257,11 +269,18 @@ def to_latex(mat: Any, **kwargs):
     :return: A string containing a LaTeX representation of `mat`.
     """
     options = params.get(**kwargs)
-    adapter = _get_adapter(mat, options)
 
-    formatter = LatexFormatter(**options.to_kwargs())
-
-    return str(formatter.format(adapter))
+    try:
+        adapter = _get_adapter(mat, options)
+        formatter = LatexFormatter(**options.to_kwargs())
+        return str(formatter.format(adapter))
+    except FallbackToNative:
+        if hasattr(mat, "_repr_latex_"):
+            return getattr(mat, "_repr_latex_")()
+        elif fallback_to_None:
+            return None
+        else:
+            return r"\texttt{" + tex_escape(str(mat)) + r"}"
 
 
 def to_str(mat: Any, **kwargs) -> str:
@@ -276,20 +295,22 @@ def to_str(mat: Any, **kwargs) -> str:
     """
     options = params.get(**kwargs)
 
-    ret = []
+    try:
+        ret = []
 
-    if options.title:
-        if options.title is True:
-            adapter = _get_adapter(mat, None)
-            title = f"<{adapter.describe()}>"
-        else:
-            title = options.title
-        ret.append(title)
+        if options.title:
+            if options.title is True:
+                adapter = _get_adapter(mat, None)
+                title = f"<{adapter.describe()}>"
+            else:
+                title = options.title
+            ret.append(title)
 
-    from .string_formatter import to_tabulate
-    ret.append(to_tabulate(mat, **kwargs))
-
-    return "\n".join(ret)
+        from .string_formatter import to_tabulate
+        ret.append(to_tabulate(mat, **kwargs))
+        return "\n".join(ret)
+    except FallbackToNative:
+        return str(mat)
 
 
 def mprint(mat: Any, **kwargs):

@@ -22,6 +22,8 @@ def describe(shape: tuple = None, nnz: int = None, nz_type=None, layout: str = N
     if nnz is not None:
         dtype_str = f" '{str(nz_type)}'" if nz_type else ""
         parts.append(f"{nnz}{dtype_str} elements")
+    elif nz_type is not None:
+        parts.append(f"'{nz_type}' elements")
 
     if layout is not None:
         parts.append(str(layout))
@@ -40,6 +42,10 @@ class DupeList(list):
 
     def __init__(self, iterable):
         super().__init__(iterable)
+
+
+class FallbackToNative(Exception):
+    """Thrown if the native repr method should be used."""
 
 
 class MatrixAdapter(ABC):
@@ -434,9 +440,9 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
     if len(shape) == 1:
         # vector
         nrows = 1
-        ncols = mat.get_shape()[0]
+        ncols = shape[0]
     elif len(shape) == 2:
-        nrows, ncols = mat.get_shape()
+        nrows, ncols = shape
         max_rows = min(max_rows, nrows)
         max_cols = min(max_cols, ncols)
     else:
@@ -515,6 +521,8 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
                 continue
 
             for col_range in [(0, pre_dot_end), (post_dot_start, ncols)]:
+                if col_range[0] == col_range[1]:
+                    continue
                 for col_idx, value in mat.get_row(row_idx, col_range=col_range):
                     trunc.set(row_idx, col_idx, value)
         return trunc
@@ -536,6 +544,8 @@ def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncate
                 continue
 
             for row_range in [(0, pre_dot_end), (post_dot_start, nrows)]:
+                if row_range[0] == row_range[1]:
+                    continue
                 for row_idx, value in mat.get_col(col_idx, row_range=row_range):
                     trunc.set(row_idx, col_idx, value)
         return trunc
