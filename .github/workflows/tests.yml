@@ -42,6 +42,7 @@ jobs:
         pip install python-graphblas
         pip install sparse
         pip install torch
+        pip install tensorflow
 
     - name: Python Test without Jupyter
       if: ${{ !contains(matrix.python-version, 'pypy') }}  # no scipy wheels for pypy

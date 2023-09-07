@@ -197,6 +197,9 @@ def _register_bundled():
     from .adapters.torch_driver import PyTorchDriver
     register_driver(PyTorchDriver)
 
+    from .adapters.tensorflow_driver import TensorFlowDriver
+    register_driver(TensorFlowDriver)
+
     from .adapters.list_like import ListDriver
     register_driver(ListDriver)
 

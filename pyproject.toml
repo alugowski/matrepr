@@ -32,6 +32,9 @@ keywords = [
     "scipy",
     "pydata",
     "graphblas",
+    "torch",
+    "pytorch",
+    "tensorflow",
 ]
 
 [project.urls]
@@ -40,4 +43,4 @@ repository = "https://github.com/alugowski/matrepr"
 
 [project.optional-dependencies]
 test = ["pytest", "html5lib", "scipy"]
-supported = ["scipy", "numpy", "python-graphblas", "sparse", "torch"]
+supported = ["scipy", "numpy", "python-graphblas", "sparse", "torch", "tensorflow"]
