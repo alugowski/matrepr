@@ -11,9 +11,9 @@ MatRepr formats matrices to HTML, string, and LaTeX, with Jupyter integration.
 
 * **SciPy** - sparse matrices and arrays like `csr_matrix` and `coo_array`
 * **NumPy** - `ndarray`
+* **[PyTorch](https://pytorch.org/docs/stable/sparse.html)** - dense and sparse `torch.Tensor` [(demo)](doc/demo-pytorch.ipynb)
 * **[Python-graphblas](https://github.com/python-graphblas/python-graphblas)** - `gb.Matrix` and `gb.Vector` [(demo)](doc/demo-python-graphblas.ipynb)
 * **[PyData/Sparse](https://sparse.pydata.org/)** - `COO`, `DOK`, `GCXS` [(demo)](doc/demo-pydata-sparse.ipynb)
-* **[PyTorch](https://pytorch.org/docs/stable/sparse.html)** - `torch.Tensor` [(demo)](doc/demo-pytorch.ipynb)
 * `list`, `tuple`, including multi-dimensional and ragged
 
 Features:
