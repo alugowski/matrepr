@@ -3,8 +3,11 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import unittest
+import warnings
 
 try:
+    # Suppress warning from inside tensorflow
+    warnings.filterwarnings("ignore", message="module 'sre_constants' is deprecated")
     import tensorflow as tf
 
     tf.random.set_seed(1234)
