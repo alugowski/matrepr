@@ -50,7 +50,7 @@ unicode_to_latex = {
 
 class LatexFormatter(BaseFormatter):
     def __init__(self, max_rows, max_cols, num_after_dots, title_latex, latex_matrix_env, latex_tensor_env,
-                 floatfmt_latex=None, latex_dupe_matrix_env="Bmatrix", fill_value=None, **_):
+                 cell_align="center", floatfmt_latex=None, latex_dupe_matrix_env="Bmatrix", fill_value=None, **_):
         super().__init__()
         self.max_rows = max_rows
         self.max_cols = max_cols
@@ -60,6 +60,7 @@ class LatexFormatter(BaseFormatter):
         self.latex_matrix_env = latex_matrix_env
         self.latex_tensor_env = latex_tensor_env
         self.dupe_env = latex_dupe_matrix_env
+        self.cell_align = cell_align
         self.floatfmt = floatfmt_latex
         if not self.floatfmt:
             self.floatfmt = lambda f: python_scientific_to_latex_times10(format(f))
@@ -71,6 +72,15 @@ class LatexFormatter(BaseFormatter):
                 return ""
             else:
                 obj = self.fill_value
+
+        if type(obj).__module__ == "numpy":
+            # numpy is installed
+            import numpy as np
+
+            if np.isscalar(obj):
+                py = obj.item()
+                if isinstance(py, (int, float, complex, bool, str, bytes)):
+                    obj = py  # fall through for possible further rendering
 
         if is_index and isinstance(obj, int):
             return str(obj)
@@ -118,6 +128,16 @@ class LatexFormatter(BaseFormatter):
 
         return "\\textrm{" + tex_escape(str(obj)) + "}"
 
+    def _get_array_col_align(self, num_cols: int, index_cols: set):
+        m = {
+            "left": "l",
+            "right": "r",
+            "center": "c",
+        }
+
+        # right-justify index columns, user-selected value columns.
+        return "".join(["r" if idx in index_cols else m.get(self.cell_align, "c") for idx in range(num_cols)])
+
     def _write_matrix(self, mat: MatrixAdapterRow, matrix_env, indent: int = 0):
         if isinstance(mat, Truncated2DMatrix):
             mat.apply_dots(unicode_dots)
@@ -125,7 +145,15 @@ class LatexFormatter(BaseFormatter):
         nrows, ncols = mat.get_shape()
         index_cols = set(mat.columns_as_index())
 
-        self.write("\\begin{" + matrix_env + "}", indent=indent)
+        left_bracket = colalign = right_bracket = ""
+        if matrix_env == "array":
+            if not mat.is_tensor():
+                # matrix
+                left_bracket = r"\left["
+                right_bracket = r"\right]"
+            colalign = "{" + self._get_array_col_align(ncols, index_cols) + "}"
+
+        self.write(left_bracket + "\\begin{" + matrix_env + "}" + colalign, indent=indent)
 
         body_indent = indent + self.indent_width
 
@@ -145,7 +173,7 @@ class LatexFormatter(BaseFormatter):
 
             self.write(" ".join(row_contents), body_indent)
 
-        self.write("\\end{" + matrix_env + "}", indent=indent)
+        self.write("\\end{" + matrix_env + "}" + right_bracket, indent=indent)
 
     def format(self, mat: MatrixAdapter):
         if self.title:
