@@ -64,13 +64,17 @@ class MatReprParams:
     title_latex: bool = False
     """If not None then overrides `title` for Latex output only."""
 
-    latex_matrix_env: str = "bmatrix"
-    """Latex environment to use for matrices. For Jupyter this should be one supported by MathJax."""
+    latex_matrix_env: str = "array"
+    """
+    Latex environment to use for matrices. For Jupyter this should be one supported by MathJax.
+    Cell alignment (left/right/center) only supported by 'array' environment.
+    """
 
-    latex_tensor_env: str = "matrix"
+    latex_tensor_env: str = "array"
     """
     Latex environment to use for tensors rendered as a 2D matrix.
     For Jupyter this should be one supported by MathJax.
+    Cell alignment (left/right/center) only supported by 'array' environment.
     """
 
     latex_dupe_matrix_env: str = "Bmatrix"

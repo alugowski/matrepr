@@ -428,6 +428,9 @@ class Truncated2DMatrix(MatrixAdapterRow):
                 ret.append(post_dot_start + (idx - self.dot_col - 1))
         return ret
 
+    def is_tensor(self) -> bool:
+        return self.orig_mat.is_tensor()
+
 
 def to_trunc(mat: MatrixAdapter, max_rows, max_cols, num_after_dots) -> Truncated2DMatrix:
     """
