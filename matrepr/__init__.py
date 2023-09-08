@@ -232,12 +232,14 @@ def _get_adapter(mat: Any, options: Optional[MatReprParams], unsupported_raise=T
     return adapter
 
 
-def to_html(mat: Any, notebook=False, fallback_to_None=False, **kwargs) -> str:
+def to_html(mat: Any, notebook=False, fallback_to_none=False, **kwargs):
     """
     Render a matrix to HTML.
 
     :param mat: A supported matrix.
     :param notebook: If true then adds extra styling appropriate for display in a Jupyter notebook.
+    :param fallback_to_none: Whether to return None or a fallback LaTeX string
+         if the formatter asks to fall back to native formatting.
     :param kwargs: Any argument in :class:`MatReprParams`.
     :rtype: str
     :return: A string containing an HTML representation of `mat`.
@@ -256,17 +258,19 @@ def to_html(mat: Any, notebook=False, fallback_to_None=False, **kwargs) -> str:
     except FallbackToNative:
         if hasattr(mat, "_repr_html_"):
             return getattr(mat, "_repr_html_")()
-        elif fallback_to_None:
+        elif fallback_to_none:
             return None
         else:
             return f"<pre>{str(mat)}</pre>"
 
 
-def to_latex(mat: Any, fallback_to_None=False, **kwargs):
+def to_latex(mat: Any, fallback_to_none=False, **kwargs):
     """
     Render a matrix to LaTeX.
 
     :param mat: A supported matrix.
+    :param fallback_to_none: Whether to return None or a fallback LaTeX string
+         if the formatter asks to fall back to native formatting.
     :param kwargs: Any argument in :class:`MatReprParams`.
     :rtype: str
     :return: A string containing a LaTeX representation of `mat`.
@@ -280,7 +284,7 @@ def to_latex(mat: Any, fallback_to_None=False, **kwargs):
     except FallbackToNative:
         if hasattr(mat, "_repr_latex_"):
             return getattr(mat, "_repr_latex_")()
-        elif fallback_to_None:
+        elif fallback_to_none:
             return None
         else:
             return r"\texttt{" + tex_escape(str(mat)) + r"}"

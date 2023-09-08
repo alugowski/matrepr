@@ -12,7 +12,7 @@ Usage:
 
 def _repr_html_(mat):
     from . import to_html
-    return to_html(mat, notebook=True, fallback_to_None=True)
+    return to_html(mat, notebook=True, fallback_to_none=True)
 
 
 def load_ipython_extension(ipython):
