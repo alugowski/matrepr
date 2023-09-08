@@ -1,7 +1,7 @@
 [project]
 name = "matrepr"
 version = "0.8.1"
-description="Format matrices to HTML, string, and LaTeX, with Jupyter integration."
+description="Format matrices and tensors to HTML, string, and LaTeX, with Jupyter integration."
 readme = "README.md"
 authors = [
     { name = "Adam Lugowski"},

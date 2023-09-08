@@ -7,7 +7,7 @@
 
 Make every matrix beautiful.
 
-MatRepr formats matrices to HTML, string, and LaTeX, with Jupyter integration.
+MatRepr formats matrices and tensors to HTML, string, and LaTeX, with Jupyter integration.
 
 * **SciPy** - sparse matrices and arrays like `csr_matrix` and `coo_array`
 * **NumPy** - `ndarray`
