@@ -8,9 +8,10 @@
 Make every matrix beautiful.
 
 MatRepr formats matrices and tensors to HTML, string, and LaTeX, with Jupyter integration.
+See [Jupyter notebook for examples.](doc/demo.ipynb)
 
 * **SciPy** - sparse matrices and arrays like `csr_matrix` and `coo_array`
-* **NumPy** - `ndarray`
+* **NumPy** - `ndarray` [(demo)](doc/demo-numpy.ipynb)
 * **[PyTorch](https://pytorch.org/docs/stable/sparse.html)** - dense and sparse `torch.Tensor` [(demo)](doc/demo-pytorch.ipynb)
 * **[TensorFlow](https://www.tensorflow.org/guide/sparse_tensor)** - `tf.Tensor` and `tf.SparseTensor` [(demo)](doc/demo-tensorflow.ipynb)
 * **[Python-graphblas](https://github.com/python-graphblas/python-graphblas)** - `gb.Matrix` and `gb.Vector` [(demo)](doc/demo-python-graphblas.ipynb)
@@ -19,18 +20,16 @@ MatRepr formats matrices and tensors to HTML, string, and LaTeX, with Jupyter in
 
 Features:
 * Jupyter extension to format matrices in cell outputs.
-* A `__repr__` monkey patch to format matrices in the Python shell.
-* Nested sub-matrices of any supported type, including mixing packages.
 * Configurable float precision or format string.
 * Toggle row and column indices or set your own labels.
+* Nested sub-matrices of any supported type, including mixing packages.
 * Toggle matrix description or set your own title.
 * String output can optionally autodetect terminal width.
 * Methods to directly display a matrix (`mprint`, `mdisplay` for Jupyter)
 * Methods to convert to string (`to_html`, `to_latex`, `to_str`).
 * Configurable per method call or set defaults with `matrepr.params`.
+* A `__repr__` monkey patch to format matrices in the Python shell.
 * Fast.
-
-See [Jupyter notebook with examples.](doc/demo.ipynb)
 
 ## Quick Start
 
@@ -70,13 +69,19 @@ from matrepr import mdisplay, mprint
 or simply `A` with monkey patching as below
 
 ### HTML
-<img src="doc/images/html.png" width=400 alt="HTML screenshot"/>
+
+<img src="doc/images/html.png" width=400 alt="HTML screenshot"/><br>
+<img src="doc/images/html-cities.png" width=400 alt="HTML screenshot"/><br>
+<img src="doc/images/html-4d.png" width=400 alt="4D NumPy Array"/><br>
+<img src="doc/images/html-adjacency.png" width=290 alt="Adjacency Matrix"/><br>  
 
 `mdisplay(A)`, `to_html(A)`  
 or simply `A` with Jupyter extension `%load_ext matrepr`
 
+
 ### LaTeX
-<img src="doc/images/latex.png" width=432 alt="LaTeX screenshot"/>
+<img src="doc/images/latex.png" width=400 alt="LaTeX screenshot"/><br>
+<img src="doc/images/latex-edgecases.png" width=600 alt="LaTeX edgecases screenshot"/>
 
 `mdisplay(A, 'latex')`, `to_latex(A)`  
 or simply `A` with Jupyter extension `%load_ext matrepr.latex`
