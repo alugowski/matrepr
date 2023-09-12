@@ -50,13 +50,6 @@ class ListConverter:
             else:
                 obj = self.fill_value
 
-        if isinstance(obj, int) and is_index:
-            return str(obj)
-
-        if isinstance(obj, (int, float)):
-            formatted = self.floatfmt(obj)
-            return obj if repr(obj) == formatted else formatted
-
         if type(obj).__module__ == "numpy":
             # numpy is installed
             import numpy as np
@@ -70,6 +63,13 @@ class ListConverter:
             else:
                 # do not fall through to the regular numpy driver below because of missing multiline support in tabular.
                 return _single_line(str(obj))
+
+        if isinstance(obj, int) and is_index:
+            return str(obj)
+
+        if isinstance(obj, (int, float)):
+            formatted = self.floatfmt(obj)
+            return obj if repr(obj) == formatted else formatted
 
         if isinstance(obj, complex):
             sign = "-" if obj.imag < 0 else "+"

@@ -137,6 +137,7 @@ class MatReprParams:
             ret.set_precision(ret.precision)
         elif isinstance(ret.floatfmt, str):
             fmt_str = ret.floatfmt
+            ret.floatfmt_str = fmt_str
             ret.floatfmt = lambda f: format(f, fmt_str)
 
         # validate
