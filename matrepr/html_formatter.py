@@ -82,8 +82,8 @@ class HTMLTableFormatter(BaseFormatter):
             from copy import copy
             fmt = copy(self)
             fmt.lines = []
-            fmt.max_rows = max(self.max_rows / 2, 2)
-            fmt.max_cols = max(self.max_cols / 2, 2)
+            fmt.max_rows = max(self.max_rows // 2, 2)
+            fmt.max_cols = max(self.max_cols // 2, 2)
             fmt.num_after_dots = 0
             fmt.title = None
             fmt.indices = False

@@ -21,6 +21,7 @@ class NumpyTests(unittest.TestCase):
                 [[1, 2], [3, 4]],
                 [[100, 200], [300, 400]],
             ]),
+            np.random.randint(low=0, high=10_000, size=(3, 5, 10)),  # 3D
             np.random.randint(low=0, high=10_000, size=(2, 2, 2, 2))  # 4D
         ]
 

@@ -12,6 +12,8 @@ class NumpyArrayAdapter(MatrixAdapterRow):
         super().__init__()
         self.mat = mat
         self.is_vec = len(mat.shape) < 2
+        if self.is_vec:
+            self.row_labels = False
 
     def get_shape(self) -> tuple:
         # present at most 2D, higher dimensions will be handled as nested arrays

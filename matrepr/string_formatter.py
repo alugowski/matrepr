@@ -255,7 +255,7 @@ def to_tabulate(mat: Any, **kwargs) -> str:
     adapter = _get_adapter(mat, options)
 
     if options.width_str:
-        txt_max_cols = max(1, int(options.width_str / 3))  # minimum 3 chars per column (if empty)
+        txt_max_cols = max(1, options.width_str // 3)  # minimum 3 chars per column (if empty)
         cols = min(options.max_cols, txt_max_cols)
         trunc = to_trunc(adapter, options.max_rows, cols, options.num_after_dots)
 
