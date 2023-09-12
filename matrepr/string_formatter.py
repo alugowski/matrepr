@@ -205,10 +205,14 @@ def _to_tabulate_args(mat: Any, is_tensor, options, tab_extra_args) -> Tuple[Dic
         row_labels_txt = _format_row_labels(_labels_to_str(row_labels), has_header=has_header, tf=matrix_format)
 
     # collect floatfmt argument
-    if isinstance(options.floatfmt, str):
+    disable_numparse = tab_extra_args.pop("disable_numparse", False)
+    if hasattr(options, "floatfmt_str"):
+        floatfmt = options.floatfmt_str
+    elif isinstance(options.floatfmt, str):
         floatfmt = options.floatfmt
     else:
-        floatfmt = f".{options.precision}g"
+        disable_numparse = True  # the numbers are already formatted; leave them as is
+        floatfmt = "g"
 
     # column alignment
     index_cols = set(mat.columns_as_index())
@@ -229,6 +233,7 @@ def _to_tabulate_args(mat: Any, is_tensor, options, tab_extra_args) -> Tuple[Dic
         "tablefmt": matrix_format,
         "floatfmt": floatfmt,
         "colalign": colalign,
+        "disable_numparse": disable_numparse,
         **tab_extra_args
     }
 
