@@ -116,8 +116,8 @@ class LatexFormatter(BaseFormatter):
         from . import _get_adapter
         adapter = _get_adapter(obj, None, unsupported_raise=False)
         if adapter:
-            fmt = LatexFormatter(max_rows=max(self.max_rows / 2, 2),
-                                 max_cols=max(self.max_cols / 2, 2),
+            fmt = LatexFormatter(max_rows=max(self.max_rows // 2, 2),
+                                 max_cols=max(self.max_cols // 2, 2),
                                  num_after_dots=0, title_latex=None,
                                  fill_value=self.fill_value,
                                  latex_matrix_env=self.latex_matrix_env,
