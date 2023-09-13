@@ -19,10 +19,16 @@ AUTO = "auto"
 @dataclass
 class MatReprParams:
     max_rows: int = 11
-    """Maximum number of rows in output."""
+    """
+    Maximum number of rows in output.
+    Set to None for unlimited.
+    """
 
     max_cols: int = 15
-    """Maximum number of columns in output."""
+    """
+    Maximum number of columns in output.
+    Set to None for unlimited.
+    """
 
     width_str: int = None
     """
@@ -140,17 +146,21 @@ class MatReprParams:
             ret.floatfmt_str = fmt_str
             ret.floatfmt = lambda f: format(f, fmt_str)
 
-        # validate
-        ret._assert_one_of("cell_align", ['center', 'left', 'right'])
-        ret.max_rows = max(1, ret.max_rows)
-        ret.max_cols = max(1, ret.max_cols)
-
         # Apply some default rules
+        if ret.max_rows is None:
+            ret.max_rows = 999_999_999
+        if ret.max_cols is None:
+            ret.max_cols = 999_999_999
         if ret.title_latex is None:
             ret.title_latex = ret.title
 
         if ret.floatfmt_latex is None:
             ret.floatfmt_latex = lambda f: python_scientific_to_latex_times10(ret.floatfmt(f))
+
+        # validate
+        ret._assert_one_of("cell_align", ['center', 'left', 'right'])
+        ret.max_rows = max(1, ret.max_rows)
+        ret.max_cols = max(1, ret.max_cols)
 
         # compute automatic values
         if kwargs.get("auto_width_str", False):

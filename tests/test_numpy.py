@@ -47,6 +47,22 @@ class NumpyTests(unittest.TestCase):
             for value in np.nditer(mat):
                 self.assertIn(f">{value}</td>", res)
 
+    def test_large_size(self):
+        mats = [
+            np.arange(1000),
+            np.arange(1000).reshape(25, 40),
+        ]
+
+        for mat in mats:
+            res = to_str(mat, max_rows=None, max_cols=None)
+            self.assertNotIn("...", res)
+
+            res = to_html(mat, max_rows=None, max_cols=None)
+            self.assertNotIn("dot;", res)
+
+            res = to_latex(mat, max_rows=None, max_cols=None)
+            self.assertNotIn("dots", res)
+
 
 if __name__ == '__main__':
     unittest.main()
