@@ -13,10 +13,7 @@ try:
 
     # Context initialization must happen before any other imports
     gb.init("suitesparse", blocking=False)
-
-    have_gb = True
 except ImportError:
-    have_gb = False
     gb = None
 
 
@@ -34,7 +31,7 @@ def generate_fixed_value(m, n):
     return gb.Matrix.from_coo(rows, cols, data, nrows=m, ncols=n, dtype='int64'), data
 
 
-@unittest.skipIf(not have_gb, "python-graphblas not installed")
+@unittest.skipIf(not gb, "python-graphblas not installed")
 class GraphBLASMatrixTests(unittest.TestCase):
     def setUp(self):
         mat = gb.Matrix.from_coo([0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4], nrows=5, ncols=5)
@@ -81,7 +78,7 @@ class GraphBLASMatrixTests(unittest.TestCase):
             self.assertEqual(expected_count, count)
 
 
-@unittest.skipIf(not have_gb, "python-graphblas not installed")
+@unittest.skipIf(not gb, "python-graphblas not installed")
 class GraphBLASVectorTests(unittest.TestCase):
     def setUp(self):
         vec = gb.Vector.from_coo([0, 3, 4, 6], [12.1, -5.4, 2.9, 2.2], size=8)
@@ -121,7 +118,7 @@ class GraphBLASVectorTests(unittest.TestCase):
             self.assertIn(f"<td>{value}</td>", res)
 
 
-@unittest.skipIf(not have_gb, "python-graphblas not installed")
+@unittest.skipIf(not gb, "python-graphblas not installed")
 class PatchGraphBLASTests(unittest.TestCase):
     def test_patch_graphblas(self):
         mat = gb.Matrix.from_coo([0, 1], [0, 1], [111, 222], nrows=5, ncols=5),

@@ -10,11 +10,17 @@ try:
 except ImportError:
     sparse = None
 
-from matrepr import to_html, to_latex, to_str
+try:
+    import scipy
+    import scipy.sparse
 
-import scipy
-import numpy as np
-np.random.seed(123)
+    import numpy as np
+    np.random.seed(123)
+except ImportError:
+    scipy = None
+    np = None
+
+from matrepr import to_html, to_latex, to_str
 
 
 def generate_fixed_value(m, n):
@@ -39,10 +45,13 @@ class PyDataSparseTests(unittest.TestCase):
             sparse.COO(coords=np.array([1, 4]), data=np.array([11, 44]), shape=(10,)),
             sparse.COO(np.empty(shape=(10, 10))),
             sparse.random((10, 10), density=0.4),
-            sparse.COO.from_scipy_sparse(generate_fixed_value(10, 10)),
             sparse.COO(coords=np.array([[0, 0], [0, 0]]), data=np.array([111, 222]), shape=(13, 13)),  # has dupes
             sparse.COO(coords=np.array([[0, 1], [3, 2], [1, 3]]), data=np.array([111, 222]), shape=(5, 5, 5)),
         ]
+        if scipy is not None:
+            self.mats.append(
+                sparse.COO.from_scipy_sparse(generate_fixed_value(10, 10))
+            )
 
         with warnings.catch_warnings():
             # COO will incorrectly complain that the object is not ndarray when it is.
@@ -103,6 +112,7 @@ class PyDataSparseTests(unittest.TestCase):
         for value in [1000, 1009]:
             self.assertIn(f"<td>{value}</td>", res)
 
+    @unittest.skipIf(scipy is None, "scipy not installed")
     def test_contents_2d(self):
         mat = generate_fixed_value(10, 10)
         sparse_mat = sparse.COO.from_scipy_sparse(mat)
@@ -110,6 +120,7 @@ class PyDataSparseTests(unittest.TestCase):
         for value in mat.data:
             self.assertIn(f"<td>{value}</td>", res)
 
+    @unittest.skipIf(scipy is None, "scipy not installed")
     def test_truncate_2d(self):
         mat = generate_fixed_value(20, 20)
         sparse_mat = sparse.COO.from_scipy_sparse(mat)

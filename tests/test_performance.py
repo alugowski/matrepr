@@ -5,14 +5,20 @@
 import unittest
 import time
 
-import numpy.random
-import scipy.sparse
+try:
+    import scipy
+    import scipy.sparse
+
+    import numpy.random
+    numpy.random.seed(123)
+except ImportError:
+    scipy = None
+    numpy = None
 
 from matrepr import to_html
 
-numpy.random.seed(123)
 
-
+@unittest.skipIf(scipy is None, "scipy not installed")
 class PerformanceTests(unittest.TestCase):
     def test_to_html_speed(self):
         # warmup, just in case

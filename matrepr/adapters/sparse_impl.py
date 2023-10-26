@@ -37,9 +37,14 @@ class PyDataSparseBase:
         if hasattr(self.mat, "nbytes"):
             parts.append(sizeof_fmt(self.mat.nbytes))
 
+        try:
+            fmt = self.mat.format
+        except AttributeError:
+            fmt = self.mat.__class__.__name__
+
         return describe(shape=self.mat.shape,
                         nnz=self.mat.nnz, nz_type=self.mat.dtype,
-                        layout=self.mat.format,
+                        layout=fmt,
                         notes=", ".join(parts))
 
 

@@ -43,4 +43,4 @@ repository = "https://github.com/alugowski/matrepr"
 
 [project.optional-dependencies]
 test = ["pytest", "html5lib", "scipy"]
-supported = ["scipy", "numpy", "python-graphblas", "sparse", "torch", "tensorflow"]
+supported = ["scipy", "numpy", "python-graphblas", "sparse", "torch>=2.0.0", "tensorflow"]

@@ -4,12 +4,17 @@
 
 import unittest
 
-import numpy.random
-import scipy.sparse
+try:
+    import scipy
+    import scipy.sparse
+
+    import numpy.random
+    numpy.random.seed(123)
+except ImportError:
+    scipy = None
+    numpy = None
 
 from matrepr import to_html, to_latex, to_str
-
-numpy.random.seed(123)
 
 
 def generate_fixed_value(m, n):
@@ -26,6 +31,7 @@ def generate_fixed_value(m, n):
     return scipy.sparse.coo_matrix((data, (rows, cols)), shape=(m, n), dtype='int64')
 
 
+@unittest.skipIf(scipy is None, "scipy not installed")
 class SciPyTests(unittest.TestCase):
     def setUp(self):
         self.mats = [
@@ -66,6 +72,7 @@ class SciPyTests(unittest.TestCase):
                 self.assertEqual(expected[i], res)
 
 
+@unittest.skipIf(scipy is None, "scipy not installed")
 class PatchSciPyTests(unittest.TestCase):
     def test_patch_scipy(self):
         source_mat = scipy.sparse.coo_matrix(([111, 222], ([0, 1], [0, 1])), shape=(10, 10))
