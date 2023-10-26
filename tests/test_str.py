@@ -4,7 +4,15 @@
 
 import unittest
 
-import scipy.sparse
+try:
+    import scipy
+    import scipy.sparse
+
+    import numpy.random
+    numpy.random.seed(123)
+except ImportError:
+    scipy = None
+    numpy = None
 
 from matrepr import to_str
 from matrepr.string_formatter import max_line_width
@@ -24,6 +32,7 @@ def generate_fixed_value(m, n):
     return scipy.sparse.coo_matrix((data, (rows, cols)), shape=(m, n), dtype='int64')
 
 
+@unittest.skipIf(scipy is None, "scipy not installed")
 class ToStrTests(unittest.TestCase):
     def setUp(self):
         self.mats = [

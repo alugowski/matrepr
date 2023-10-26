@@ -5,16 +5,16 @@
 import unittest
 import warnings
 
-import numpy as np
-
 try:
     import torch
+
+    import numpy.random
+    numpy.random.seed(123)
 except ImportError:
     torch = None
+    numpy = None
 
 from matrepr import to_html, to_latex, to_str
-
-np.random.seed(123)
 
 
 def generate_fixed_value(m, n):

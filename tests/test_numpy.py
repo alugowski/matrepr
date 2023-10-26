@@ -4,13 +4,17 @@
 
 import unittest
 
-import numpy as np
+try:
+    import numpy as np
+
+    np.random.seed(123)
+except ImportError:
+    np = None
 
 from matrepr import to_html, to_latex, to_str
 
-np.random.seed(123)
 
-
+@unittest.skipIf(np is None, "numpy not installed")
 class NumpyTests(unittest.TestCase):
     def setUp(self):
         self.mats = [
