@@ -397,12 +397,7 @@ class Truncated2DMatrix(MatrixAdapterRow):
                 drop = self.dot_col
         else:
             assert self.dot_col <= old_dot_col
-            if self.dot_col == 0:
-                drop = self.dot_col
-            elif self.dot_col < old_dot_col:
-                drop = self.dot_col - 1
-            else:
-                drop = self.dot_col
+            drop = self.dot_col
 
         # adjust metadata
         self.display_shape[1] -= 1
