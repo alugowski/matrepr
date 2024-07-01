@@ -67,6 +67,22 @@ class NumpyTests(unittest.TestCase):
             res = to_latex(mat, max_rows=None, max_cols=None)
             self.assertNotIn("dots", res)
 
+    def test_gh_35(self):
+        mat = np.arange(5000).reshape(2, 2500)
+        res = to_str(mat, width_str=50)
+        self.assertNotIn("6 ", res)
+
+    def test_auto_width_str_vals(self):
+        mat = np.arange(5000)
+        # Try a range of string widths.
+        for width_str in range(1, 200):
+            res = to_str(mat, width_str=width_str)
+            # The header has the expected matrix value, so compare the two.
+            lines = res.split("\n")
+            headers = lines[1].split()
+            vals = lines[2].replace("...", " ").replace("[", "").replace("]", "").split()
+            self.assertEqual(headers, vals)
+
 
 if __name__ == '__main__':
     unittest.main()
