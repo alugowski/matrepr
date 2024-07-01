@@ -1,6 +1,6 @@
 [project]
 name = "matrepr"
-version = "1.0.0"
+version = "1.0.1"
 description="Format matrices and tensors to HTML, string, and LaTeX, with Jupyter integration."
 readme = "README.md"
 authors = [
