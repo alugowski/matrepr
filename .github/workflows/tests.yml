@@ -13,7 +13,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.7', '3.11', 'pypy-3.9']
+        python-version: ['3.7', '3.12', 'pypy-3.9']
+        exclude:
+          - os: macos-latest
+            python-version: '3.7'
+        include:
+          - os: macos-latest
+            python-version: '3.8'
 
     steps:
     - uses: actions/checkout@v4
@@ -36,19 +42,19 @@ jobs:
     - name: Test only SciPy
       run: pytest
 
-    - name: Install other supported packages
-      run: |
-        echo "=== Install Python-graphblas =================="
-        pip install --only-binary ":all:" python-graphblas || true
-        echo ""
-        echo "=== Install PyData/Sparse ====================="
-        pip install --only-binary ":all:" sparse || true
-        echo ""
-        echo "=== Install PyTorch ==========================="
-        pip install --only-binary ":all:" "torch>=2.0.0" || true
-        echo ""
-        echo "=== Install TensorFlow ========================="
-        pip install --only-binary ":all:" tensorflow || true
+    - name: Install python-graphblas
+      run: pip install --only-binary ":all:" python-graphblas || true
+
+    - name: Install PyData/Sparse
+      run: pip install --only-binary ":all:" sparse || true
+
+    - name: Install PyTorch
+      # importing PyTorch causes a crash on GitHub Actions. Test on the other OSes.
+      if: ${{ !contains(matrix.os, 'macos') }}
+      run: pip install --only-binary ":all:" "torch>=2.0.0" || true
+
+    - name: Install TensorFlow
+      run: pip install --only-binary ":all:" tensorflow || true
 
     - name: Python Test without Jupyter
       run: pytest
